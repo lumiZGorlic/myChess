@@ -1,0 +1,7 @@
+- add all the remaining rules
+- add logs to make debugging possible
+- complete it (while loop, search etc.) so that a normal game can be played (user can specify either depth or time limit)
+- test against TSCP in terms of strength, speed (move generation) etc.
+- generate magics and improve move generation
+- resolve TODOs in the code
+- extend search (TT etc) and evaluation
