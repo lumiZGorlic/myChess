@@ -21,18 +21,29 @@ std::string sqrMapIntToStr2[] = {
 // TODO add a routine to show the mapping numbers to squares or ideally ask
 // user for a field and translate into int
 
-bool pickRandomMove(chessBoard& board, move& m)
-{   
-    std::vector<move> moves;
-    std::vector<move>::iterator mvsIt;
+bool pickRandomMove(chessBoard& board, move& m, int prefMv = 0)
+{
+    move moves[MAX_NUM_OF_MVS];
+    board.numOfMvs = 0;
     board.genMoves(moves);
 
-    for (mvsIt = moves.begin(); mvsIt != moves.end(); mvsIt++)
+    // check if preferred move can be played
+    if (prefMv < board.numOfMvs)
     {
         chessBoard tmpBoard = board;
-        if (tmpBoard.makeMove(*mvsIt))
+        if (tmpBoard.makeMove(moves[prefMv]))
         {
-            m = *mvsIt;
+            m = moves[prefMv];
+            return true;
+        }
+    }
+
+    for (int i = 0; i < board.numOfMvs; i++)
+    {
+        chessBoard tmpBoard = board;
+        if (tmpBoard.makeMove(moves[i]))
+        {
+            m = moves[i];
             return true;
         }
     }
@@ -42,8 +53,9 @@ bool pickRandomMove(chessBoard& board, move& m)
 
 void printMove(const move& m)
 {
-    std::cout << "Move from " << sqrMapIntToStr2[(int) m.from]
-              << " to " << sqrMapIntToStr2[(int) m.to]  << std::endl;
+    std::cout << "Move from "
+              << sqrMapIntToStr2[(int) m.from] << " to "
+              << sqrMapIntToStr2[(int) m.to]  << std::endl;
 
     // TODO castling and promotion handling
 
@@ -83,18 +95,18 @@ move getInput()
 
         std::cin >> strFrom >> strTo;
 
+        // if user entered lower case e.g. e2 e4 we have to convert it to
+        // upper case characters
+        std::transform(strFrom.begin(), strFrom.end(), strFrom.begin(),
+                       ::toupper);
+        std::transform(strTo.begin(), strTo.end(), strTo.begin(),
+                       ::toupper);
+
         for ( unsigned int i=0; i < sizeof(sqrMapIntToStr2)/sizeof(sqrMapIntToStr2[0]); i++ )
         {
-            // if user entered lower case e.g. e2 e4 we have to convert it to
-            // upper case characters
-            std::transform(strFrom.begin(), strFrom.end(), strFrom.begin(),
-                           ::toupper);
-            std::transform(strTo.begin(), strTo.end(), strTo.begin(),
-                           ::toupper);
-
             if (strFrom == sqrMapIntToStr2[i])
                 intFrom = i;
-            else if (strTo == sqrMapIntToStr2[i])
+            if (strTo == sqrMapIntToStr2[i])
                 intTo = i;
         }
     }
@@ -151,17 +163,14 @@ bool gameEnded(chessBoard board){
         return true;
     }
 
-    std::vector<move> mvs;
-    std::vector<move>::iterator mvsIt;
+    move moves[MAX_NUM_OF_MVS];
+    board.numOfMvs = 0;
+    board.genMoves(moves);
 
-    board.genMoves(mvs);
-    for (mvsIt = mvs.begin(); mvsIt != mvs.end(); mvsIt++)
+    for (int i = 0; i < board.numOfMvs; i++)
     {
-        // TODO debug
-        //std::cout << sqrMapIntToStr2[((int)(*mvsIt).from)] << ", " << sqrMapIntToStr2[((int)(*mvsIt).to)] << std::endl;
-
         chessBoard boardTmp = board;
-        if (boardTmp.makeMove(*mvsIt))
+        if (boardTmp.makeMove(moves[i]))
         {
             return false;
         }
@@ -173,58 +182,168 @@ bool gameEnded(chessBoard board){
     return true;
 }
 
-void playChess ()
+void testMoveGenSpeed()
+{
+    chessBoard board;
+    //std::string pos( "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" );
+    std::string pos( "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -" );
+    //std::string pos( "8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -" );
+    //std::string pos( "r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1" );
+
+    readInPosFromFEN (board, pos);
+    board.populateOccup();
+    board.populateCharBoard();
+
+    move moves[MAX_NUM_OF_MVS];
+
+    clock_t begin = clock();
+    for (int j = 0; j<1000000; j++)
+    {
+        board.numOfMvs = 0;
+        board.genMoves(moves);
+    }
+    clock_t end = clock();
+
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    std::cout << "spent " << elapsed_secs << std::endl;
+    std::cout << "number of moves  " << board.numOfMvs << std::endl;
+}
+
+void playDummyGame()
 {
     chessBoard board;
     searchEngine searchEn;
     move m(0,0,0);
 
-    // TODO testing only
-    //std::string pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    //std::string pos ("Bnb2bnr/2k1PQ1p/4p3/4P3/3N1B2/PRN5/P1P2PPR/7K w - 0 1");
-    std::string pos ("k7/3N4/8/K7/8/8/8/8 w - 0 1");
+    std::string pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
     readInPosFromFEN (board, pos);
     board.populateOccup();
     board.populateCharBoard();
     board.calcHash();
 
+    int searchDepth = 3, prefMv = 25;
+
+    board.printCharBoard();
+    while (true)
+    {
+        if (gameEnded(board))
+        {
+            board.printCharBoard();
+            break;
+        }
+
+        if (board.side == true)
+        {
+            m = searchEn.doSearch(board, searchDepth);
+
+            std::string tmpFEN;
+            savePosInFEN(board, tmpFEN);
+            std::cout << "temp FEN is ... " << tmpFEN << std::endl;
+        }
+        else
+            pickRandomMove(board, m, prefMv);
+
+        printMove(m);
+        board.makeMove(m);
+        board.printCharBoard();
+    }
+
 
     // TODO testing only
-    board.printCharBoard();
-    m = searchEn.doSearch(board, 2);
+    // to test if searching of some positions failing
+    /*board.printCharBoard();
+    m = searchEn.doSearch(board, 3);
     printMove(m);
-    return;
+    return;*/
 
+}
+
+void engineVsEngine()
+{
+    chessBoard board;
+    searchEngine searchEn;
+    move m(0,0,0);
+
+    std::string pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+    readInPosFromFEN (board, pos);
+    board.populateOccup();
+    board.populateCharBoard();
+    board.calcHash();
+
+    int searchDepth = 3, prefMv = 25;
+
+    board.printCharBoard();
+    while (true)
+    {
+        if (gameEnded(board))
+        {
+            board.printCharBoard();
+            break;
+        }
+
+        m = searchEn.doSearch(board, searchDepth);
+
+        std::string tmpFEN;
+        savePosInFEN(board, tmpFEN);
+        std::cout << "temp FEN is ... " << tmpFEN << std::endl;
+
+        printMove(m);
+        board.makeMove(m);
+        board.printCharBoard();
+    }
+
+}
+
+// TODO user should be able to pick side
+void playChess ()
+{
+    chessBoard board;
+    searchEngine searchEn;
+    move m(0,0,0);
+
+
+    std::string pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+    readInPosFromFEN (board, pos);
+    board.populateOccup();
+    board.populateCharBoard();
+    board.calcHash();
 
     int searchDepth = pickSearchDepth();
 
     board.printCharBoard();
     while (true)
     {
-        /*std::vector<move> mvs;
-        std::vector<move>::iterator it;
-        board.genMoves(mvs);
-        // check if game over 
+        if (gameEnded(board))
+        {
+            board.printCharBoard();
+            break;
+        }
+
+        move moves[MAX_NUM_OF_MVS];
+        board.numOfMvs = 0;
+        board.genMoves(moves);
 
         bool pass = false;
         while (!pass)
         {
             m = getInput();
 
-            for (it = mvs.begin(); it != mvs.end(); it++)
+            for (int i = 0; i < board.numOfMvs; i++)
             {
-                if (it->from == m.from && it->to == m.to)
+                if (moves[i].from == m.from && moves[i].to == m.to)
                 {
                     // moves generated by genMoves are complete as they have all
                     // the fields ('from, 'to', 'flag') set. User-generated move
-                    // has only 'to' and 'from' so need to use the one by genMoves 
-                    m = *it;
+                    // has only 'to' and 'from' so need to use the one by genMoves
+                    m = moves[i];
 
                     // promotion is a special case so allow the user
                     // to choose the new piece
-                    if (it->flag == PROMOTE_R || it->flag == PROMOTE_B ||
-                        it->flag == PROMOTE_N || it->flag == PROMOTE_Q)
+                    if (moves[i].flag == PROMOTE_R || moves[i].flag == PROMOTE_B ||
+                        moves[i].flag == PROMOTE_N || moves[i].flag == PROMOTE_Q)
                          m.flag = promotionPickNewPiece();
 
                     chessBoard tmp = board;
@@ -237,37 +356,17 @@ void playChess ()
         }
         board.printCharBoard();
 
-        mvs.clear();
-        board.genMoves(mvs);
-        // check if game over
-        */
-
         if (gameEnded(board))
         {
             board.printCharBoard();
             break;
         }
 
-        // TODO experiment with searchDepth - e.g flip between values so
-        // that one side stronger and no draw
-        if (board.side == true)
-        {
-            m = searchEn.doSearch(board, searchDepth);
-
-            // TODO testing only
-            std::string tmpFEN;
-            savePosInFEN(board, tmpFEN);
-            std::cout << "temp FEN is ... " << tmpFEN << std::endl;
-        }
-        else
-            pickRandomMove(board, m);
-
-        //m = searchEn.doSearch(board, searchDepth);
-
+        m = searchEn.doSearch(board, searchDepth);
 
         // TODO check if the move legal
+        printMove(m);
         board.makeMove(m);
-        //printMove(m);
         board.printCharBoard();
     }
 }
@@ -290,33 +389,14 @@ int main ()
 {
     signal(SIGSEGV, handler);
 
-    //int* foo = (int*)-1;
-    //printf("%d\n", *foo);       // causes segfault
 
-    debugMoveGen();
+    //debugMoveGen();
+    //testMoveGenSpeed();
+    //playDummyGame();
+    engineVsEngine();
+
     //playChess();
 
-
-    /*char c; int i;
-    std::cin >> i;
-    c = i;
-    std::cout << c << std::endl;
-    std::cout << (int)c << std::endl;*/
-
-    /*chessBoard board;
-    // initial position
-    std::string pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-
-    readInPosFromFEN (board, pos);
-    board.populateOccup();
-    board.populateCharBoard();
-    board.printCharBoard();*/
-
-    /*std::cout << eval(board) << std::endl;
-
-    move m = searchMain(board, 3);
-    std::cout << "from " << sqrMapIntToStr2[(int)m.from]
-              << " to " << sqrMapIntToStr2[(int)m.to] << std::endl;*/
 
     return 0;
 }

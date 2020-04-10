@@ -2,6 +2,9 @@
 #include <vector>
 #include <chrono>
 
+#define MAX_NUM_OF_MVS      250 
+
+
 typedef unsigned long long U64;
 
 // TODO: if use char here then need to convert char to int and vice-versa
@@ -9,11 +12,13 @@ typedef unsigned long long U64;
 struct move {
     char from, to, flag;
     move(char f, char t, char fl)
-        : from(f), to(t), flag(fl)  
+        : from(f), to(t), flag(fl)
+    { }
+    move()
+        : from(0), to(0), flag(0)
     { }
 };
-
-// TODO: this caused a bug due to the order
+ 
 enum { EP=1, CASTLING, PROMOTE_R, PROMOTE_N, PROMOTE_B, PROMOTE_Q };
 
 enum {
@@ -28,7 +33,6 @@ enum {
 };
 
 
-// TODO: some more rules to add e.g. 50 moves rule
 struct chessBoard {
 
     U64 occ, white_Occ, black_Occ,
@@ -52,6 +56,8 @@ struct chessBoard {
     unsigned long long int currPosHash;
     std::vector<unsigned long long int> historyHash;
 
+    int numOfMvs;
+
     chessBoard();
     unsigned long long int genHash();
 
@@ -67,21 +73,20 @@ struct chessBoard {
 
     // TODO
     // check occupancy so that it makes sense, for debugging purposes
-    bool checkOccup () {
+    /*bool checkOccup () {
+    }*/
 
-    }
+    void calcAttackSqrRook(move* mvs, int sqr);
+    void calcAttackSqrBishop(move* mvs, int sqr);
+    void calcAttackSqrQueen(move* mvs, int sqr);
+    void calcAttackSqrKnight(move* mvs, int sqr);
+    void calcAttackSqrKing(move* mvs, int sqr);
+    void calcAttackSqrWhitePawn(move* mvs, int sqr);
+    void calcAttackSqrBlackPawn(move* mvs, int sqr);
+    void calcMoveSqrBlackPawn(move* mvs, int sqr);
+    void calcMoveSqrWhitePawn(move* mvs, int sqr);
 
-    void calcAttackSqrRook(std::vector<move>& mvs, int sqr);
-    void calcAttackSqrBishop(std::vector<move>& mvs, int sqr);
-    void calcAttackSqrQueen(std::vector<move>& mvs, int sqr);
-    void calcAttackSqrKnight(std::vector<move>& mvs, int sqr);
-    void calcAttackSqrKing(std::vector<move>& mvs, int sqr);
-    void calcAttackSqrWhitePawn(std::vector<move>& mvs, int sqr);
-    void calcAttackSqrBlackPawn(std::vector<move>& mvs, int sqr);
-    void calcMoveSqrBlackPawn(std::vector<move>& mvs, int sqr);
-    void calcMoveSqrWhitePawn(std::vector<move>& mvs, int sqr);
-
-    void genMoves(std::vector<move>& moves);
+    void genMoves(move* mvs);
     bool makeMove(move mv);
 
     int squareWithKing(bool sideToFind);

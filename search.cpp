@@ -32,24 +32,25 @@ move searchEngine::searchMain(chessBoard& board, int depth)
     // TODO special case if depth zero - make sure it never happens ?
     // TODO make sure we don't get here if mate or stalemate ?
 
-    std::vector<move> moves; std::vector<move>::iterator it;
     move m(0, 0, 0);
     chessBoard boardCpy;
     int score = -200000, tmp;
  
+    move moves[MAX_NUM_OF_MVS];
+    board.numOfMvs = 0;
     board.genMoves(moves);
 
-    for (it = moves.begin(); it != moves.end(); it++)
+    for (int i = 0; i < board.numOfMvs; i++)
     {
         boardCpy = board;
 
-        if (board.makeMove(*it))
+        if (board.makeMove(moves[i]))
         { 
             tmp = -search(board, depth - 1, -200000, -score);
             if (tmp > score)
             {
                 score = tmp;
-                m = *it;
+                m = moves[i];
             }
         }
 
@@ -59,15 +60,12 @@ move searchEngine::searchMain(chessBoard& board, int depth)
             return m;
     }
 
-    // TODO just debug
-    std::cout << "score is ---> " << score << std::endl;
     return m;
 }
 
 
 int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
 {
-    std::vector<move> moves; std::vector<move>::iterator it;
     chessBoard boardCpy;
     int tmp = 0;
  
@@ -95,14 +93,17 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
     if (board.currPosRepeats() >= 2)
         return 0;
 
+    bool playedMoves = false;
+
+    move moves[MAX_NUM_OF_MVS];
+    board.numOfMvs = 0;
     board.genMoves(moves);
 
-    bool playedMoves = false;
-    for (it = moves.begin(); it != moves.end(); it++)
+    for (int i = 0; i < board.numOfMvs; i++)
     {
         boardCpy = board;
 
-        if (board.makeMove(*it))
+        if (board.makeMove(moves[i]))
         {
             playedMoves = true;    
 
@@ -139,7 +140,6 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
 
 // TODO seems like there's an explosion here so have to check that
 int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
-    std::vector<move> moves; std::vector<move>::iterator it;
     chessBoard boardCpy;
     int tmp = 0;
 
@@ -151,17 +151,19 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
     if( alpha < standPat )
         alpha = standPat;
 
+    move moves[MAX_NUM_OF_MVS];
+    board.numOfMvs = 0;
     board.genMoves(moves);
 
     // TODO add checks, promotions etc
     // have to add 50 moves rule then ?
-    for (it = moves.begin(); it != moves.end(); it++)
+    for (int i = 0; i < board.numOfMvs; i++)
     {
-        if (board.charBoard[(int)(it->to)] != ' ' || it->flag == EP)
+        if (board.charBoard[(int)(moves[i].to)] != ' ' || moves[i].flag == EP)
         {
             boardCpy = board;
 
-            if (board.makeMove(*it))
+            if (board.makeMove(moves[i]))
             {
                  tmp = -quiesce(board, -beta, -alpha);
                  if (tmp >= beta)

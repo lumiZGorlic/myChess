@@ -12,6 +12,13 @@
 // TODO: pass reference to const where appropriate
 // TODO: also some functions should be const e.g. genMoves etc
 // TODO: think about what should be inline and what shouldn't
+// TODO identify if sth can be passed by ref/pnt rather than copied etc
+// TODO add logs so can investigate when crashed
+// TODO max width 80 chars
+// TODO test related stuff in a separate file
+// TODO add isSqrUnderAttack to be used in makeMove
+// TODO maybe replace struct 'move' with sth
+// TODO add move ordering
 
 
 std::string sqrMapIntToStr[] = {
@@ -98,7 +105,8 @@ chessBoard::chessBoard() :
     castlRights(std::string("1111")),
     ep(-1),
     fifty(0),
-    currPosHash(0)
+    currPosHash(0),
+    numOfMvs(0)
 {
     for (int i = A1; i <= H8; i++)
         charBoard[i] = ' ';
@@ -153,17 +161,10 @@ void chessBoard::calcHash()
 
 int chessBoard::currPosRepeats()
 {
-    // TODO Should be tested and incorporated into search and playing routines
-
-    // TODO print just for debugging.
-    //for (int i = 0; i < (int)historyHash.size(); i++)
-    //    std::cout << "pos nr " << i << " and the hash is " << historyHash[i] << std::endl;
-
     int ret = 0;
     for (int i = 0; i < (int)historyHash.size(); i++)
         if (historyHash[i] == currPosHash)
             ret++;
-    //std::cout << "curretn pos repeated " << ret << std::endl;
 
     return ret;
 }
@@ -254,11 +255,14 @@ int chessBoard::squareWithKing(bool sideToFind)
 bool chessBoard::isInCheck(bool sideToFind){
 
     int sqrKing = squareWithKing(sideToFind);
-    std::vector<move> moves; std::vector<move>::iterator it;
+
+    move moves[MAX_NUM_OF_MVS];
+    numOfMvs = 0;
     genMoves(moves);
-    for (it = moves.begin(); it != moves.end(); it++)
+
+    for (int i = 0; i < numOfMvs; i++)
     {
-        if ((int)it->to == sqrKing)
+        if ((int) moves[i].to == sqrKing)
         {
             return true;
         }
@@ -267,7 +271,7 @@ bool chessBoard::isInCheck(bool sideToFind){
     return false;
 }
 
-void chessBoard::calcAttackSqrRook(std::vector<move>& mvs, int sqr)
+void chessBoard::calcAttackSqrRook(move* mvs, int sqr)
 {
     int j = sqr;
     j += 8;
@@ -284,12 +288,18 @@ void chessBoard::calcAttackSqrRook(std::vector<move>& mvs, int sqr)
             }
             else if ((black_Occ >> j) & 1)
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
                 break;
             }
             else
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
             }
         }
         else
@@ -300,12 +310,18 @@ void chessBoard::calcAttackSqrRook(std::vector<move>& mvs, int sqr)
             }
             else if ((white_Occ >> j) & 1)
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
                 break;
             }
             else
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
             }
         }
 
@@ -324,12 +340,18 @@ void chessBoard::calcAttackSqrRook(std::vector<move>& mvs, int sqr)
             }
             else if ((black_Occ >> j) & 1)
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
                 break;
             }
             else
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
             }
         }
         else
@@ -340,12 +362,18 @@ void chessBoard::calcAttackSqrRook(std::vector<move>& mvs, int sqr)
             }
             else if ((white_Occ >> j) & 1)
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
                 break;
             }
             else
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
             }
         }
 
@@ -365,12 +393,18 @@ void chessBoard::calcAttackSqrRook(std::vector<move>& mvs, int sqr)
             }
             else if ((black_Occ >> j) & 1)
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
                 break;
             }
             else
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
             }
         }
         else
@@ -381,12 +415,18 @@ void chessBoard::calcAttackSqrRook(std::vector<move>& mvs, int sqr)
             }
             else if ((white_Occ >> j) & 1)
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
                 break;
             }
             else
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
             }
         }
 
@@ -405,12 +445,18 @@ void chessBoard::calcAttackSqrRook(std::vector<move>& mvs, int sqr)
             }
             else if ((black_Occ >> j) & 1)
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
                 break;
             }
             else
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
             }
         }
         else
@@ -421,12 +467,18 @@ void chessBoard::calcAttackSqrRook(std::vector<move>& mvs, int sqr)
             }
             else if ((white_Occ >> j) & 1)
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
                 break;
             }
             else
             {
-                mvs.push_back(move(sqr, j, 0));
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = j;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
             }
         }
 
@@ -434,9 +486,10 @@ void chessBoard::calcAttackSqrRook(std::vector<move>& mvs, int sqr)
     }
 }
 
-void chessBoard::calcAttackSqrBishop(std::vector<move>& mvs, int sqr)
+void chessBoard::calcAttackSqrBishop(move* mvs, int sqr)
 {
     int rk, fi, destSqr;
+
     for (int j = -1; j <= 1; j += 2)
     {
         for (int k = -1; k <= 1; k += 2)
@@ -459,12 +512,18 @@ void chessBoard::calcAttackSqrBishop(std::vector<move>& mvs, int sqr)
                         }
                         else if ((black_Occ >> destSqr) & 1)
                         {
-                            mvs.push_back(move(sqr, destSqr, 0));
+                            mvs[numOfMvs].from = sqr;
+                            mvs[numOfMvs].to = destSqr;
+                            mvs[numOfMvs].flag = 0;
+                            numOfMvs++;
                             break;
                         }
                         else
                         {
-                            mvs.push_back(move(sqr, destSqr, 0));
+                            mvs[numOfMvs].from = sqr;
+                            mvs[numOfMvs].to = destSqr;
+                            mvs[numOfMvs].flag = 0;
+                            numOfMvs++;
                         }
                     }
                     else
@@ -475,12 +534,18 @@ void chessBoard::calcAttackSqrBishop(std::vector<move>& mvs, int sqr)
                         }
                         else if ((white_Occ >> destSqr) & 1)
                         {
-                            mvs.push_back(move(sqr, destSqr, 0));
+                            mvs[numOfMvs].from = sqr;
+                            mvs[numOfMvs].to = destSqr;
+                            mvs[numOfMvs].flag = 0;
+                            numOfMvs++;
                             break;
                         }
                         else
                         {
-                            mvs.push_back(move(sqr, destSqr, 0));
+                            mvs[numOfMvs].from = sqr;
+                            mvs[numOfMvs].to = destSqr;
+                            mvs[numOfMvs].flag = 0;
+                            numOfMvs++;
                         }
                     }
                 }
@@ -489,13 +554,13 @@ void chessBoard::calcAttackSqrBishop(std::vector<move>& mvs, int sqr)
     }
 }
 
-void chessBoard::calcAttackSqrQueen(std::vector<move>& mvs, int sqr)
+void chessBoard::calcAttackSqrQueen(move* mvs, int sqr)
 {
     calcAttackSqrRook(mvs, sqr);
     calcAttackSqrBishop(mvs, sqr);
 }
 
-void chessBoard::calcAttackSqrKnight(std::vector<move>& mvs, int sqr)
+void chessBoard::calcAttackSqrKnight(move* mvs, int sqr)
 {
     int destSqr;
     for (int j = -2; j <= 2; j += 4)
@@ -509,14 +574,20 @@ void chessBoard::calcAttackSqrKnight(std::vector<move>& mvs, int sqr)
                 {
                     if ( !((white_Occ >> destSqr) & 1) )
                     {
-                        mvs.push_back(move(sqr, destSqr, 0));
+                        mvs[numOfMvs].from = sqr;
+                        mvs[numOfMvs].to = destSqr;
+                        mvs[numOfMvs].flag = 0;
+                        numOfMvs++;
                     }
                 }
                 else
                 {
                     if ( !((black_Occ >> destSqr) & 1) )
                     {
-                        mvs.push_back(move(sqr, destSqr, 0));
+                        mvs[numOfMvs].from = sqr;
+                        mvs[numOfMvs].to = destSqr;
+                        mvs[numOfMvs].flag = 0;
+                        numOfMvs++;
                     }
                 }
             }
@@ -528,14 +599,20 @@ void chessBoard::calcAttackSqrKnight(std::vector<move>& mvs, int sqr)
                 {
                     if ( !((white_Occ >> destSqr) & 1) )
                     {
-                        mvs.push_back(move(sqr, destSqr, 0));
+                        mvs[numOfMvs].from = sqr;
+                        mvs[numOfMvs].to = destSqr;
+                        mvs[numOfMvs].flag = 0;
+                        numOfMvs++;
                     }
                 }
                 else
                 {
                     if ( !((black_Occ >> destSqr) & 1) )
                     {
-                        mvs.push_back(move(sqr, destSqr, 0));
+                        mvs[numOfMvs].from = sqr;
+                        mvs[numOfMvs].to = destSqr;
+                        mvs[numOfMvs].flag = 0;
+                        numOfMvs++;
                     }
                 }
             }
@@ -543,7 +620,7 @@ void chessBoard::calcAttackSqrKnight(std::vector<move>& mvs, int sqr)
     }
 }
 
-void chessBoard::calcAttackSqrKing(std::vector<move>& mvs, int sqr)
+void chessBoard::calcAttackSqrKing(move* mvs, int sqr)
 {
     int destSqr;
 
@@ -562,14 +639,20 @@ void chessBoard::calcAttackSqrKing(std::vector<move>& mvs, int sqr)
                 {
                     if ( !((white_Occ >> destSqr) & 1) )
                     {
-                        mvs.push_back(move(sqr, destSqr, 0));
+                        mvs[numOfMvs].from = sqr;
+                        mvs[numOfMvs].to = destSqr;
+                        mvs[numOfMvs].flag = 0;
+                        numOfMvs++;
                     }
                 }
                 else
                 {
                     if ( !((black_Occ >> destSqr) & 1) )
                     {
-                        mvs.push_back(move(sqr, destSqr, 0));
+                        mvs[numOfMvs].from = sqr;
+                        mvs[numOfMvs].to = destSqr;
+                        mvs[numOfMvs].flag = 0;
+                        numOfMvs++;
                     }
                 }
             }
@@ -587,11 +670,13 @@ void chessBoard::calcAttackSqrKing(std::vector<move>& mvs, int sqr)
             setBit(tmp, G1);
 
             if ((occ & tmp) == false)
-                // TODO: decide whether to do it here or later
-                //&& !isSqrUnderAttack(E1, !board.side, board)
-                //&& !isSqrUnderAttack(F1, !board.side, board))
+                // TODO: could use isSqrUnderAttack to check if sqrs between king
+                // and rook attacked
             {
-                mvs.push_back(move(E1, G1, CASTLING));
+                mvs[numOfMvs].from = E1;
+                mvs[numOfMvs].to = G1;
+                mvs[numOfMvs].flag = CASTLING;
+                numOfMvs++;
             }
         }
 
@@ -603,10 +688,11 @@ void chessBoard::calcAttackSqrKing(std::vector<move>& mvs, int sqr)
             setBit(tmp, D1);
             if ((occ & tmp) == false)
                 // TODO: same as above
-                //&& !isSqrUnderAttack(E1, !board.side, board)
-                //&& !isSqrUnderAttack(D1, !board.side, board))
             {
-                mvs.push_back(move(E1, C1, CASTLING));
+                mvs[numOfMvs].from = E1;
+                mvs[numOfMvs].to = C1;
+                mvs[numOfMvs].flag = CASTLING;
+                numOfMvs++;
             }
         }
     }
@@ -621,11 +707,12 @@ void chessBoard::calcAttackSqrKing(std::vector<move>& mvs, int sqr)
             setBit(tmp, G8);
 
             if ((occ & tmp) == false)
-                // TODO: decide whether to do it here or later
-                //&& !isSqrUnderAttack(E8, !board.side, board)
-                //&& !isSqrUnderAttack(F8, !board.side, board))
+                // TODO: same as above
             {
-                mvs.push_back(move(E8, G8, CASTLING));
+                mvs[numOfMvs].from = E8;
+                mvs[numOfMvs].to = G8;
+                mvs[numOfMvs].flag = CASTLING;
+                numOfMvs++;
             }
         }
 
@@ -637,16 +724,17 @@ void chessBoard::calcAttackSqrKing(std::vector<move>& mvs, int sqr)
             setBit(tmp, D8);
             if ((occ & tmp) == false)
                 // TODO: same as above
-                //&& !isSqrUnderAttack(E8, !board.side, board)
-                //&& !isSqrUnderAttack(D8, !board.side, board))
             {
-                mvs.push_back(move(E8, C8, CASTLING));
+                mvs[numOfMvs].from = E8;
+                mvs[numOfMvs].to = C8;
+                mvs[numOfMvs].flag = CASTLING;
+                numOfMvs++;
             }
         }
     }
 }
 
-void chessBoard::calcAttackSqrWhitePawn(std::vector<move>& mvs, int sqr)
+void chessBoard::calcAttackSqrWhitePawn(move* mvs, int sqr)
 {
     int destSqr;
     if ( rankFileOK(rank(sqr) + 1) && rankFileOK(file(sqr) + 1) )
@@ -657,14 +745,29 @@ void chessBoard::calcAttackSqrWhitePawn(std::vector<move>& mvs, int sqr)
             if (rank(destSqr) == 7)
             {
                 for (int i=PROMOTE_R; i<=PROMOTE_Q; i++)
-                    mvs.push_back(move(sqr, destSqr, i));
+                {
+                    mvs[numOfMvs].from = sqr;
+                    mvs[numOfMvs].to = destSqr;
+                    mvs[numOfMvs].flag = i;
+                    numOfMvs++;
+                }
             }
             else
-                mvs.push_back(move(sqr, destSqr, 0));
+            {
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = destSqr;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
+            }
         }
 
         if (destSqr == ep)
-            mvs.push_back(move(sqr, destSqr, EP));
+        {
+            mvs[numOfMvs].from = sqr;
+            mvs[numOfMvs].to = destSqr;
+            mvs[numOfMvs].flag = EP;
+            numOfMvs++;
+        }
     }
 
     if ( rankFileOK(rank(sqr) + 1) && rankFileOK(file(sqr) - 1) )
@@ -675,18 +778,33 @@ void chessBoard::calcAttackSqrWhitePawn(std::vector<move>& mvs, int sqr)
             if (rank(destSqr) == 7)
             {
                 for (int i=PROMOTE_R; i<=PROMOTE_Q; i++)
-                    mvs.push_back(move(sqr, destSqr, i));
+                {
+                    mvs[numOfMvs].from = sqr;
+                    mvs[numOfMvs].to = destSqr;
+                    mvs[numOfMvs].flag = i;
+                    numOfMvs++;
+                }
             }
             else
-                mvs.push_back(move(sqr, destSqr, 0));
+            {
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = destSqr;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
+            }
         }
 
         if (destSqr == ep)
-            mvs.push_back(move(sqr, destSqr, EP));
+        {
+            mvs[numOfMvs].from = sqr;
+            mvs[numOfMvs].to = destSqr;
+            mvs[numOfMvs].flag = EP;
+            numOfMvs++;
+        }
     }
 }
 
-void chessBoard::calcAttackSqrBlackPawn(std::vector<move>& mvs, int sqr)
+void chessBoard::calcAttackSqrBlackPawn(move* mvs, int sqr)
 {
     int destSqr;
     if ( rankFileOK(rank(sqr) - 1) && rankFileOK(file(sqr) + 1) )
@@ -697,14 +815,29 @@ void chessBoard::calcAttackSqrBlackPawn(std::vector<move>& mvs, int sqr)
             if (rank(destSqr) == 0)
             {
                 for (int i=PROMOTE_R; i<=PROMOTE_Q; i++)
-                    mvs.push_back(move(sqr, destSqr, i));
+                {
+                    mvs[numOfMvs].from = sqr;
+                    mvs[numOfMvs].to = destSqr;
+                    mvs[numOfMvs].flag = i;
+                    numOfMvs++;
+                }
             }
             else
-                mvs.push_back(move(sqr, destSqr, 0));
+            {
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = destSqr;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
+            }
         }
 
         if (destSqr == ep)
-            mvs.push_back(move(sqr, destSqr, EP));
+        {
+            mvs[numOfMvs].from = sqr;
+            mvs[numOfMvs].to = destSqr;
+            mvs[numOfMvs].flag = EP;
+            numOfMvs++;
+        }
     }
 
     if ( rankFileOK(rank(sqr) - 1) && rankFileOK(file(sqr) - 1) )
@@ -715,18 +848,33 @@ void chessBoard::calcAttackSqrBlackPawn(std::vector<move>& mvs, int sqr)
             if (rank(destSqr) == 0)
             {
                 for (int i=PROMOTE_R; i<=PROMOTE_Q; i++)
-                    mvs.push_back(move(sqr, destSqr, i));
+                {
+                    mvs[numOfMvs].from = sqr;
+                    mvs[numOfMvs].to = destSqr;
+                    mvs[numOfMvs].flag = i;
+                    numOfMvs++;
+                }
             }
             else
-                mvs.push_back(move(sqr, destSqr, 0));
+            {
+                mvs[numOfMvs].from = sqr;
+                mvs[numOfMvs].to = destSqr;
+                mvs[numOfMvs].flag = 0;
+                numOfMvs++;
+            }
         }
 
         if (destSqr == ep)
-            mvs.push_back(move(sqr, destSqr, EP));
+        {
+            mvs[numOfMvs].from = sqr;
+            mvs[numOfMvs].to = destSqr;
+            mvs[numOfMvs].flag = EP;
+            numOfMvs++;
+        }
     }
 }
 
-void chessBoard::calcMoveSqrWhitePawn(std::vector<move>& mvs, int sqr)
+void chessBoard::calcMoveSqrWhitePawn(move* mvs, int sqr)
 {
     // TODO could add some checks
     //if ( rankFileOK(rank(sqr) + 1) )
@@ -739,20 +887,35 @@ void chessBoard::calcMoveSqrWhitePawn(std::vector<move>& mvs, int sqr)
     if (rank(destSqr) == 7)
     {
         for (int i=PROMOTE_R; i<=PROMOTE_Q; i++)
-            mvs.push_back(move(sqr, destSqr, i));
+        {
+            mvs[numOfMvs].from = sqr;
+            mvs[numOfMvs].to = destSqr;
+            mvs[numOfMvs].flag = i;
+            numOfMvs++;
+        }
     }
     else
-        mvs.push_back(move(sqr, destSqr, 0));
+    {
+        mvs[numOfMvs].from = sqr;
+        mvs[numOfMvs].to = destSqr;
+        mvs[numOfMvs].flag = 0;
+        numOfMvs++;
+    }
 
     if (rank(sqr) == 1)
     {
         destSqr = square(3, file(sqr));
         if ( !((occ >> destSqr) & 1) )
-            mvs.push_back(move(sqr, destSqr, 0));
+        {
+            mvs[numOfMvs].from = sqr;
+            mvs[numOfMvs].to = destSqr;
+            mvs[numOfMvs].flag = 0;
+            numOfMvs++;
+        }
     }
 }
 
-void chessBoard::calcMoveSqrBlackPawn(std::vector<move>& mvs, int sqr)
+void chessBoard::calcMoveSqrBlackPawn(move* mvs, int sqr)
 {
     // TODO could add some checks
     //if ( rankFileOK(rank(sqr) - 1) )
@@ -765,16 +928,31 @@ void chessBoard::calcMoveSqrBlackPawn(std::vector<move>& mvs, int sqr)
     if (rank(destSqr) == 0)
     {
         for (int i=PROMOTE_R; i<=PROMOTE_Q; i++)
-            mvs.push_back(move(sqr, destSqr, i));
+        {
+            mvs[numOfMvs].from = sqr;
+            mvs[numOfMvs].to = destSqr;
+            mvs[numOfMvs].flag = i;
+            numOfMvs++;
+        }
     }
     else
-        mvs.push_back(move(sqr, destSqr, 0));
+    {
+        mvs[numOfMvs].from = sqr;
+        mvs[numOfMvs].to = destSqr;
+        mvs[numOfMvs].flag = 0;
+        numOfMvs++;
+    }
 
     if (rank(sqr) == 6)
     {
         destSqr = square(4, file(sqr));
         if ( !((occ >> destSqr) & 1) )
-            mvs.push_back(move(sqr, destSqr, 0));
+        {
+            mvs[numOfMvs].from = sqr;
+            mvs[numOfMvs].to = destSqr;
+            mvs[numOfMvs].flag = 0;
+            numOfMvs++;
+        }
     }
 }
 
@@ -986,171 +1164,64 @@ bool readInPosFromFEN(chessBoard& board, std::string pos)
     return true;
 }
 
-// TODO needs to be for both sides, optimized and tested!!
-/*bool isSqrUnderAttack(int sqr, bool side, chessBoard& board)
-{
-    std::vector<int>::iterator it;
-    U64 sqrOnMap = 0;
-    setBit(sqrOnMap, sqr);
-
-    if (side == true)
-    {
-        for (it = board.wRook.begin(); it != board.wRook.end(); it++)
-        {
-            U64 att = calcAttackSqrRook(*it, board.occ);
-            if (att & sqrOnMap)
-                return true;
-        }
-
-        for (it = board.wBishop.begin(); it != board.wBishop.end(); it++)
-        {
-            U64 att = calcAttackSqrBishop(*it, board.occ);
-            if (att & sqrOnMap)
-                return true;
-        }
-
-        for (it = board.wQueen.begin(); it != board.wQueen.end(); it++)
-        {
-            U64 att = calcAttackSqrQueen(*it, board.occ);
-            if (att & sqrOnMap)
-                return true;
-        }
-
-        for (it = board.wKnight.begin(); it != board.wKnight.end(); it++)
-        {
-            U64 att = calcAttackSqrKnight(*it);
-            if (att & sqrOnMap)
-                return true;
-        }
-
-        for (it = board.wKing.begin(); it != board.wKing.end(); it++)
-        {
-            U64 att = calcAttackSqrKing(*it);
-            if (att & sqrOnMap)
-                return true;
-        }
-
-        for (it = board.wPawn.begin(); it != board.wPawn.end(); it++)
-        {
-            if (sqr == board.ep)
-                return true;
-
-            U64 att = calcAttackSqrWhitePawn(*it);
-            if (att & sqrOnMap)
-                return true;
-        }
-    }
-    else
-    {
-        for (it = board.bRook.begin(); it != board.bRook.end(); it++)
-        {
-            U64 att = calcAttackSqrRook(*it, board.occ);
-            if (att & sqrOnMap)
-                return true;
-        }
-
-        for (it = board.bBishop.begin(); it != board.bBishop.end(); it++)
-        {
-            U64 att = calcAttackSqrBishop(*it, board.occ);
-            if (att & sqrOnMap)
-                return true;
-        }
-
-        for (it = board.bQueen.begin(); it != board.bQueen.end(); it++)
-        {
-            U64 att = calcAttackSqrQueen(*it, board.occ);
-            if (att & sqrOnMap)
-                return true;
-        }
-
-        for (it = board.bKnight.begin(); it != board.bKnight.end(); it++)
-        {
-            U64 att = calcAttackSqrKnight(*it);
-            if (att & sqrOnMap)
-                return true;
-        }
-
-        for (it = board.bKing.begin(); it != board.bKing.end(); it++)
-        {
-            U64 att = calcAttackSqrKing(*it);
-            if (att & sqrOnMap)
-                return true;
-        }
-
-        for (it = board.bPawn.begin(); it != board.bPawn.end(); it++)
-        {
-            if (sqr == board.ep)
-                return true;
-
-            U64 att = calcAttackSqrBlackPawn(*it);
-            if (att & sqrOnMap)
-                return true;
-        }
-    }
-
-    return false;
-}*/
-
-void chessBoard::genMoves(std::vector<move>& moves)
+void chessBoard::genMoves(move* moves)
 {
     for (int i=A1; i<=H8; i++)
     {
-        if (side == true && charBoard[i] == 'R')
+        if (charBoard[i] == ' ')
+            continue;
+
+        if (side == true)
         {
-            calcAttackSqrRook(moves, i);
+            switch (charBoard[i])
+            {
+                case 'R':
+                    calcAttackSqrRook(moves, i);
+                    break;
+                case 'N':
+                    calcAttackSqrKnight(moves, i);
+                    break;
+                case 'B':
+                    calcAttackSqrBishop(moves, i);
+                    break;
+                case 'Q':
+                    calcAttackSqrQueen(moves, i);
+                    break;
+                case 'K':
+                    calcAttackSqrKing(moves, i);
+                    break;
+                case 'P':
+                    calcMoveSqrWhitePawn(moves, i);
+                    calcAttackSqrWhitePawn(moves, i);
+                    break;
+            }
         }
-        else if (side == true && charBoard[i] == 'N')
+        else
         {
-            calcAttackSqrKnight(moves, i);
-        }
-        else if (side == true && charBoard[i] == 'B')
-        {
-            calcAttackSqrBishop(moves, i);
-        }
-        else if (side == true && charBoard[i] == 'Q')
-        {
-            calcAttackSqrQueen(moves, i);
-        }
-        else if (side == true && charBoard[i] == 'K')
-        {
-            calcAttackSqrKing(moves, i);
-        }
-        else if (side == true && charBoard[i] == 'P')
-        {
-            calcMoveSqrWhitePawn(moves, i);
-            calcAttackSqrWhitePawn(moves, i);
-        }
-        else if (side == false && charBoard[i] == 'r')
-        {
-            calcAttackSqrRook(moves, i);
-        }
-        else if (side == false && charBoard[i] == 'n')
-        {
-            calcAttackSqrKnight(moves, i);
-        }
-        else if (side == false && charBoard[i] == 'b')
-        {
-            calcAttackSqrBishop(moves, i);
-        }
-        else if (side == false && charBoard[i] == 'q')
-        {
-            calcAttackSqrQueen(moves, i);
-        }
-        else if (side == false && charBoard[i] == 'k')
-        {
-            calcAttackSqrKing(moves, i);
-        }
-        else if (side == false && charBoard[i] == 'p')
-        {
-            calcMoveSqrBlackPawn(moves, i);
-            calcAttackSqrBlackPawn(moves, i);
+            switch (charBoard[i])
+            {
+                case 'r':
+                    calcAttackSqrRook(moves, i);
+                    break;
+                case 'n':
+                    calcAttackSqrKnight(moves, i);
+                    break;
+                case 'b':
+                    calcAttackSqrBishop(moves, i);
+                    break;
+                case 'q':
+                    calcAttackSqrQueen(moves, i);
+                    break;
+                case 'k':
+                    calcAttackSqrKing(moves, i);
+                    break;
+                case 'p':
+                    calcMoveSqrBlackPawn(moves, i);
+                    calcAttackSqrBlackPawn(moves, i);
+                    break;
+            }
         }
     }
-
-    //std::vector<move>::iterator mvsIt;
-    //for (mvsIt = moves.begin(); mvsIt != moves.end(); mvsIt++)
-    //    std::cout << "From " << sqrMapIntToStr[(int)(*mvsIt).from]
-    //              << " To "  << sqrMapIntToStr[(int)(*mvsIt).to] << std::endl;
 }
 
 U64* chessBoard::getBitBoard(char c)
@@ -1465,11 +1536,14 @@ bool chessBoard::makeMove(move mv){
 
     // TODO could use isInCheck proc here
     int sqrKing = squareWithKing(!side);
-    std::vector<move> moves; std::vector<move>::iterator it;
+
+    move moves[MAX_NUM_OF_MVS];
+    numOfMvs = 0;
     genMoves(moves);
-    for (it = moves.begin(); it != moves.end(); it++)
+
+    for (int i = 0; i < numOfMvs; i++)
     {
-        if ((int)it->to == sqrKing)
+        if ((int) moves[i].to == sqrKing)
         {
             ret = false;
             break;
@@ -1478,25 +1552,25 @@ bool chessBoard::makeMove(move mv){
         {
             // TODO: a bit of a hack with pawns below so should think of a better way of doing it 
             if ((int)mv.to == C1 &&
-                ( (int)it->to == E1 || (int)it->to == D1 ||
+                ( (int) moves[i].to == E1 || (int) moves[i].to == D1 ||
                   charBoard[C2] == 'p' || charBoard[D2] == 'p' || charBoard[E2] == 'p' || charBoard[F2] == 'p' ) )
             {
                 ret = false;
                 break;
             }
-            else if ((int)mv.to == G1 && ( (int)it->to == E1 || (int)it->to == F1 ||
+            else if ((int)mv.to == G1 && ( (int) moves[i].to == E1 || (int) moves[i].to == F1 ||
                   charBoard[G2] == 'p' || charBoard[D2] == 'p' || charBoard[E2] == 'p' || charBoard[F2] == 'p' ) )
             {
                 ret = false;
                 break;
             }
-            else if ((int)mv.to == C8 && ( (int)it->to == E8 || (int)it->to == D8 ||
+            else if ((int)mv.to == C8 && ( (int) moves[i].to == E8 || (int) moves[i].to == D8 ||
                  charBoard[C7] == 'P' || charBoard[D7] == 'P' || charBoard[E7] == 'P' || charBoard[F7] == 'P' ) )
             {
                 ret = false;
                 break;
             }
-            else if ((int)mv.to == G8 && ( (int)it->to == E8 || (int)it->to == F8 ||
+            else if ((int)mv.to == G8 && ( (int) moves[i].to == E8 || (int) moves[i].to == F8 ||
                   charBoard[G7] == 'P' || charBoard[D7] == 'P' || charBoard[E7] == 'P' || charBoard[F7] == 'P' ) )
             {
                 ret = false;
@@ -1504,50 +1578,36 @@ bool chessBoard::makeMove(move mv){
             }
         }
     }
-    
+
     calcHash();
 
     return ret;
 }
 
-//TODO: remove parameter mv and commented out stuff
-U64 Perft(chessBoard& board, int depth/*, move& mv*/)
+U64 Perft(chessBoard& board, int depth)
 {
-    /*if (depth == 1)
-    {
-        std::cout << "---------------------------------------------------------------" << std::endl;
-        std::cout << sqrMapIntToStr[(int)mv.from] << " " << sqrMapIntToStr[(int)mv.to];
-    }*/
-
-    std::vector<move> moves; std::vector<move>::iterator it;
     chessBoard boardCpy;
     U64 nodes = 0;
  
     if (depth == 0) 
         return 1;
 
+    move moves[MAX_NUM_OF_MVS];
+    board.numOfMvs = 0;
     board.genMoves(moves);
 
-    for (it = moves.begin(); it != moves.end(); it++)
+    for (int i = 0; i < board.numOfMvs; i++)
     {
         boardCpy = board;
 
-        if (board.makeMove(*it))
+        if (board.makeMove(moves[i]))
         {
-            int tmp = Perft(board, depth - 1/*, *it*/);
-
-            /*if (depth == 1)
-                std::cout << sqrMapIntToStr[(int)(*it).from] << " "
-                          << sqrMapIntToStr[(int)(*it).to]   << " "
-                          << tmp << std::endl;*/
-
+            int tmp = Perft(board, depth - 1);
             nodes += tmp;
         }
 
         board = boardCpy;
     }
-    //if (depth == 1)
-    //    std::cout << " " << nodes << std::endl;
 
     return nodes;
 }
@@ -1565,8 +1625,21 @@ void debugMoveGen () {
 
     std::vector<debugItem> debugInput;
 
+    // same positions, not as many moves
     debugInput.push_back(debugItem("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
                  {20, 400, 8902, 197281 }));
+    debugInput.push_back(debugItem("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -",
+                 { 48, 2039, 97862 }));
+    debugInput.push_back(debugItem("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -",
+                 { 14, 191, 2812, 43238, 674624 }));
+    debugInput.push_back(debugItem("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
+                 { 6, 264, 9467, 422333 }));
+    debugInput.push_back(debugItem("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8 ",
+                 { 44, 1486, 62379, 2103487 }));
+    debugInput.push_back(debugItem("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10",
+                 { 46, 2079, 89890, 3894594 }));
+
+
     /*debugInput.push_back(debugItem("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
                  {20, 400, 8902, 197281, 4865609, 119060324 }));
     debugInput.push_back(debugItem("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -",
