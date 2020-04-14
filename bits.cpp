@@ -159,6 +159,8 @@ void chessBoard::calcHash()
     historyHash.push_back(currPosHash);
 }
 
+// TODO not sure if this func used ok in search.
+// also should make use of fifty so the loop shorter
 int chessBoard::currPosRepeats()
 {
     int ret = 0;
@@ -1610,6 +1612,31 @@ U64 Perft(chessBoard& board, int depth)
     }
 
     return nodes;
+}
+
+U64 Perft2()
+{
+    chessBoard board;
+
+    std::string pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    readInPosFromFEN (board, pos);
+    board.populateOccup();
+    board.populateCharBoard();
+
+    int depth = 4;
+    std::cin >> depth;
+
+    clock_t begin = clock();
+
+    int res = Perft(board, depth);
+
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    std::cout << "spent " << elapsed_secs << " at depth " << depth << std::endl;
+    std::cout << "res is: " << res << std::endl;
+
+    return res;
 }
 
 struct debugItem {

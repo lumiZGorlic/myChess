@@ -2,35 +2,43 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <assert.h>
 
 
 move searchEngine::doSearch(chessBoard& board, int depth)
 {
-    // TODO sanity check for depth 
+    assert(depth > 0);
 
     startTime = std::chrono::system_clock::now();
-    stopSearch = false;
     timeLimit = 30.0;
+    nodes = 0;
 
     move ret(0, 0, 0);
+    chessBoard boardCpy = board;
+
     for (int i = 1; i <= depth; i++)
     {
         move tmpMv(0, 0, 0);
-        tmpMv = searchMain(board, i);
-        // only copy the move if the search was full as otherwise it won't
-        // return the best move
-        if (stopSearch == false)
-            ret = tmpMv;
+
+        try
+        {
+            tmpMv = searchMain(board, i);
+        }
+        catch (...)
+        {
+            board = boardCpy;
+            break;
+        }
+
+        ret = tmpMv;
     }
 
-    // TODO need to improve as it still can return a silly move
     return ret;
 };
 
 move searchEngine::searchMain(chessBoard& board, int depth)
 {
-    // TODO special case if depth zero - make sure it never happens ?
-    // TODO make sure we don't get here if mate or stalemate ?
+    nodes++;
 
     move m(0, 0, 0);
     chessBoard boardCpy;
@@ -55,41 +63,34 @@ move searchEngine::searchMain(chessBoard& board, int depth)
         }
 
         board = boardCpy;
-
-        if (stopSearch == true)
-            return m;
     }
 
     return m;
 }
 
-
 int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
 {
-    chessBoard boardCpy;
-    int tmp = 0;
- 
     if (depth == 0)
     {
-        // TODO not sure how big the overhead is. Maybe it shouldn't be called
-        // so frequently.
+        return quiesce(board, alpha, beta);
+    }
 
+    nodes++;
+
+    if ((nodes & 1023) == 0)
+    {
         // time management
         auto endTime = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsedSeconds = endTime - startTime;
         if (elapsedSeconds.count() >= timeLimit)
         {
-            std::cout << "elapsed seconds " << elapsedSeconds.count() << std::endl;
+            std::cout << "elapsed seconds " << elapsedSeconds.count()
+                      << std::endl;
 
-            stopSearch = true;
-            return 0;
+            throw 0;
         }
-
-        // TODO debug
-        return quiesce(board, alpha, beta);
     }
 
-    // TODO justify why it's here and not below
     if (board.currPosRepeats() >= 2)
         return 0;
 
@@ -99,6 +100,9 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
     board.numOfMvs = 0;
     board.genMoves(moves);
 
+    chessBoard boardCpy;
+    int tmp = 0;
+ 
     for (int i = 0; i < board.numOfMvs; i++)
     {
         boardCpy = board;
@@ -115,9 +119,6 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
         }
 
         board = boardCpy;
-
-        if (stopSearch == true)
-            return 0;
     }
 
     if (!playedMoves)
@@ -128,10 +129,7 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
             return 0;
     }
 
-    // TODO check if this can/should be put closer to the top
-    // so that '0' is returned before the loop
-    // TODO: also if depth is '1' in mainSearch then probably a bug so should
-    // add some code in quiesce (?) to handle it
+    // if depth 1 in mainSearch will be incorrect so need to handle it in quiesce
     if (board.fifty >= 100)
         return 0;
 
@@ -140,8 +138,22 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
 
 // TODO seems like there's an explosion here so have to check that
 int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
-    chessBoard boardCpy;
-    int tmp = 0;
+
+    nodes++;
+
+    if ((nodes & 1023) == 0)
+    {
+        // time management
+        auto endTime = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsedSeconds = endTime - startTime;
+        if (elapsedSeconds.count() >= timeLimit)
+        {
+            std::cout << "elapsed seconds " << elapsedSeconds.count()
+                      << std::endl;
+
+            throw 0;
+        }
+    }
 
     // TODO have to modify it to handle mate etc
     // TODO might be worth adding some margin
@@ -154,6 +166,9 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
     move moves[MAX_NUM_OF_MVS];
     board.numOfMvs = 0;
     board.genMoves(moves);
+
+    chessBoard boardCpy;
+    int tmp = 0;
 
     // TODO add checks, promotions etc
     // have to add 50 moves rule then ?

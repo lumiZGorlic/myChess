@@ -96,7 +96,7 @@ struct chessBoard {
 struct searchEngine {
     std::chrono::time_point<std::chrono::system_clock> startTime;
     double timeLimit;
-    bool stopSearch;
+    unsigned long long int nodes;
 
     move doSearch(chessBoard& board, int depth);
     move searchMain(chessBoard& board, int depth);
@@ -109,5 +109,6 @@ int eval(const chessBoard& board);
 bool savePosInFEN(chessBoard& board, std::string& pos);
 bool readInPosFromFEN(chessBoard& board, std::string pos);
 void debugMoveGen ();
-
+U64 Perft(chessBoard& board, int depth);
+U64 Perft2();
 

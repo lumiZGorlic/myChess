@@ -259,6 +259,39 @@ void playDummyGame()
 
 }
 
+// TODO get chess puzzles and see if the engine solves them
+void solveChessPuzzle(std::string pos)
+{
+    chessBoard board;
+    searchEngine searchEn;
+    move m(0,0,0);
+
+    readInPosFromFEN (board, pos);
+    board.populateOccup();
+    board.populateCharBoard();
+    board.calcHash();
+
+    int searchDepth = 6;
+
+    board.printCharBoard();
+    while (true)
+    {
+        if (gameEnded(board))
+        {
+            board.printCharBoard();
+            std::cout << "Game Over ... " << std::endl;
+            break;
+        }
+
+        m = searchEn.doSearch(board, searchDepth);
+
+        printMove(m);
+        board.makeMove(m);
+        board.printCharBoard();
+    }
+}
+
+
 void engineVsEngine()
 {
     chessBoard board;
@@ -393,10 +426,12 @@ int main ()
     //debugMoveGen();
     //testMoveGenSpeed();
     //playDummyGame();
-    engineVsEngine();
-
+    //engineVsEngine();
     //playChess();
+    //Perft2();
 
+
+    solveChessPuzzle("r5rk/2p1Nppp/3p3P/pp2p1P1/4P3/2qnPQK1/8/R6R w - - 1 0");
 
     return 0;
 }
