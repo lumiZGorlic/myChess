@@ -129,7 +129,7 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
             return 0;
     }
 
-    // if depth 1 in mainSearch will be incorrect so need to handle it in quiesce
+    // if depth 1 in mainSearch will be incorrect so need to handle in quiesce
     if (board.fifty >= 100)
         return 0;
 
