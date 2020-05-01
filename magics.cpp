@@ -21,11 +21,11 @@ magics::magics()
     // occupLines and occupDiags
     genOccForLinesNDiags();
 
-    calcMagicsRook();
-    calcMagicsBishop();
+    //calcMagicsRook();
+    //calcMagicsBishop();
 
-    //readFromFile();
-    mag.saveInFile();
+    //saveInFile();
+    readFromFile();
 
     calcAttackSqrKnight();
     calcAttackSqrKing();

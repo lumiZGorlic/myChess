@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono>
 #include <set>
+#include <map>
 
 #define MAX_NUM_OF_MVS      250 
 
@@ -21,6 +22,26 @@ enum {
 
 typedef unsigned long long U64;
 
+
+
+struct pieceValue {
+
+    std::map<char,int> values;
+
+    int lookupValue(char p){
+        // assert
+        return values[p];
+    }
+
+    pieceValue() {
+        values['R']=5; values['r']=5;
+        values['B']=3; values['b']=3;
+        values['N']=3; values['n']=3;
+        values['Q']=9; values['q']=9;
+        values['P']=1; values['p']=1;
+        values['K']=10; values['k']=10;
+    }
+};
 
 
 struct magics {
@@ -172,19 +193,19 @@ struct magics {
 
 
 extern magics mag;
-
-
+extern pieceValue pValue;
 
 
 // TODO: if use char here then need to convert char to int and vice-versa
 // is it good solution ?
 struct move {
     char from, to, flag;
+    int score;
     move(char f, char t, char fl)
-        : from(f), to(t), flag(fl)
+        : from(f), to(t), flag(fl), score(0)
     { }
     move()
-        : from(0), to(0), flag(0)
+        : from(0), to(0), flag(0), score(0)
     { }
 };
 
@@ -213,6 +234,11 @@ struct chessBoard {
 
     int numOfMvs;
 
+
+
+    bool isUnderAttack(int sqr, bool sideAttacking);
+
+
     chessBoard();
     unsigned long long int genHash();
 
@@ -240,6 +266,10 @@ struct chessBoard {
     void calcAttackSqrBlackPawn(move* mvs, int sqr);
     void calcMoveSqrBlackPawn(move* mvs, int sqr);
     void calcMoveSqrWhitePawn(move* mvs, int sqr);
+
+    void genAgMvsHelper(move* mvs, int sqr, U64 attackedSqrs);
+    void genAggressiveMoves(move* mvs);
+
 
     void genMoves(move* mvs);
     bool makeMove(move mv);

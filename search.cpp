@@ -5,12 +5,30 @@
 #include <assert.h>
 
 
+void sortMoves(move* moves, int numOfMvs, int i)
+{
+    int mxScore = moves[i].score;
+    int mxScoreIdx = i;
+
+    for (int j = i+1; j < numOfMvs; j++)
+        if (moves[j].score > mxScore)
+        {
+            mxScore = moves[j].score;
+            mxScoreIdx = j;
+        }
+
+    move tmp = moves[i];
+    moves[i] = moves[mxScoreIdx];
+    moves[mxScoreIdx] = tmp;
+}
+
+
 move searchEngine::doSearch(chessBoard& board, int depth)
 {
     assert(depth > 0);
 
     startTime = std::chrono::system_clock::now();
-    timeLimit = 30.0;
+    timeLimit = 300.0;
     nodes = 0;
 
     move ret(0, 0, 0);
@@ -42,7 +60,7 @@ move searchEngine::searchMain(chessBoard& board, int depth)
 
     move m(0, 0, 0);
     chessBoard boardCpy;
-    int score = -200000, tmp;
+    int score = -20000000, tmp;
  
     move moves[MAX_NUM_OF_MVS];
     board.numOfMvs = 0;
@@ -50,11 +68,13 @@ move searchEngine::searchMain(chessBoard& board, int depth)
 
     for (int i = 0; i < board.numOfMvs; i++)
     {
+        sortMoves(moves, board.numOfMvs, i);
+
         boardCpy = board;
 
         if (board.makeMove(moves[i]))
         { 
-            tmp = -search(board, depth - 1, -200000, -score);
+            tmp = -search(board, depth - 1, -20000000, -score);
             if (tmp > score)
             {
                 score = tmp;
@@ -105,6 +125,8 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
  
     for (int i = 0; i < board.numOfMvs; i++)
     {
+        sortMoves(moves, board.numOfMvs, i);
+
         boardCpy = board;
 
         if (board.makeMove(moves[i]))
@@ -124,7 +146,10 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
     if (!playedMoves)
     {
         if (board.isInCheck(board.side))
-            return -200000 + depth;
+            // trick so that check mates in smaller number of moves get higher
+            // score. -19999970 seems safe. Max number used as alpha in
+            // search is 20000000. And search unlikely to be deeper than 30.
+            return -19999970 - depth;
         else
             return 0;
     }

@@ -5,17 +5,10 @@
 
 // TODO: should int be used for square or some other type
 // TODO: int should be unsigned or not ? why ?
-// TODO: more enums, for example for 'side' etc
 // TODO: pass reference to const where appropriate
 // TODO: also some functions should be const e.g. genMoves etc
 // TODO: think about what should be inline and what shouldn't
 // TODO identify if sth can be passed by ref/pnt rather than copied etc
-// TODO add logs so can investigate when crashed
-// TODO max width 80 chars
-// TODO test related stuff in a separate file
-// TODO add isSqrUnderAttack to be used in makeMove
-// TODO maybe replace struct 'move' with sth
-// TODO add move ordering
 
 
 // TODO investigate why this needs to be global etc
@@ -86,6 +79,327 @@ chessBoard::chessBoard() :
     sideHash = genHash();
 }
 
+
+bool chessBoard::isUnderAttack(int sqr, bool sideAttacking){
+
+    U64 boardKing = 0;
+    setBit(boardKing, sqr);
+
+    for (int sqr=A1; sqr<=H8; sqr++)
+    {
+        if(charBoard[sqr] == ' ')
+        {
+            continue;
+        }
+
+        if (sideAttacking == true)
+        {
+            if(charBoard[sqr] == 'R')
+            {
+                U64 blockers = occ & mag.rookMask[sqr];
+                int shift = 32 - mag.RBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
+                        ^ (int)(blockers>>32)*(int)(mag.rookMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+            else if(charBoard[sqr] == 'N')
+            {
+                U64 attackedSqrs = mag.knightAttackArr[sqr];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+            else if(charBoard[sqr] == 'B')
+            {
+                U64 blockers = occ & mag.bishopMask[sqr];
+                int shift = 32 - mag.BBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr]
+                        ^ (int)(blockers>>32)*(int)(mag.bishopMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.bishopAttackArr[sqr][key];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+            else if(charBoard[sqr] == 'Q')
+            {
+                U64 blockers = occ & mag.rookMask[sqr];
+                int shift = 32 - mag.RBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
+                        ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
+                if (attackedSqrs & boardKing)
+                    return true;
+
+                blockers = occ & mag.bishopMask[sqr];
+                shift = 32 - mag.BBits[sqr];
+                key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr] ^
+                      (int)(blockers>>32) * (int)(mag.bishopMagics[sqr]>>32))
+                      >> shift;
+                attackedSqrs = mag.bishopAttackArr[sqr][key];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+            else if(charBoard[sqr] == 'K')
+            {
+                U64 attackedSqrs = mag.kingAttackArr[sqr];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+            else if(charBoard[sqr] == 'P')
+            {
+                U64 attackedSqrs = mag.wPawnAttackArr[sqr];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+        }
+        else
+        {
+            if(charBoard[sqr] == 'r')
+            {
+                U64 blockers = occ & mag.rookMask[sqr];
+                int shift = 32 - mag.RBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
+                        ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+            else if(charBoard[sqr] == 'n')
+            {
+                U64 attackedSqrs = mag.knightAttackArr[sqr];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+            else if(charBoard[sqr] == 'b')
+            {
+                U64 blockers = occ & mag.bishopMask[sqr];
+                int shift = 32 - mag.BBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr]
+                        ^ (int)(blockers>>32)*(int)(mag.bishopMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.bishopAttackArr[sqr][key];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+            else if(charBoard[sqr] == 'q')
+            {
+                U64 blockers = occ & mag.rookMask[sqr];
+                int shift = 32 - mag.RBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
+                        ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
+                if (attackedSqrs & boardKing)
+                    return true;
+
+                blockers = occ & mag.bishopMask[sqr];
+                shift = 32 - mag.BBits[sqr];
+                key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr]
+                    ^ (int)(blockers>>32) * (int)(mag.bishopMagics[sqr]>>32))
+                    >> shift;
+                attackedSqrs = mag.bishopAttackArr[sqr][key];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+            else if(charBoard[sqr] == 'k')
+            {
+                U64 attackedSqrs = mag.kingAttackArr[sqr];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+            else if(charBoard[sqr] == 'p')
+            {
+                U64 attackedSqrs = mag.bPawnAttackArr[sqr];
+                if (attackedSqrs & boardKing)
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+// TODO can/should be more generic and used in calcAttackSqrRook and the like
+void chessBoard::genAgMvsHelper(move* mvs, int sqr, U64 attackedSqrs)
+{
+    if (side == true)
+    {
+        attackedSqrs &= ~white_Occ;
+        attackedSqrs &= black_Occ;
+    }
+    else
+    {
+        attackedSqrs &= ~black_Occ;
+        attackedSqrs &= white_Occ;
+    }
+
+    int dist = 0;
+    while (attackedSqrs)
+    {
+        int frwd = mag.bitscanForward(attackedSqrs);
+        attackedSqrs >>= (frwd+1);
+        dist += frwd+1;
+
+        mvs[numOfMvs].from = sqr;
+        mvs[numOfMvs].to = dist-1;
+        mvs[numOfMvs].flag = 0;
+        numOfMvs++;
+
+        if (frwd == 63)
+            attackedSqrs = 0;
+    }
+}
+
+
+// needs to take an array
+// TODO finish and use it in quiesce
+void chessBoard::genAggressiveMoves(move* mvs)
+{
+    // need to generate a bitmap for a king to see if some
+    // moves result in a check
+    /* int kingSqr = ....
+
+      U64 checkKingFrom = attacks for queen, knight, pawn from the kingSqr
+      minus occupancy
+    */
+
+    for (int sqr=A1; sqr<=H8; sqr++)
+    {
+        if(charBoard[sqr] == ' ')
+        {
+            continue;
+        }
+
+        if (side == true)
+        {
+            if(charBoard[sqr] == 'R')
+            {
+                U64 blockers = occ & mag.rookMask[sqr];
+                int shift = 32 - mag.RBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
+                        ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+            else if(charBoard[sqr] == 'N')
+            {
+                U64 attackedSqrs = mag.knightAttackArr[sqr];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+            else if(charBoard[sqr] == 'B')
+            {
+                U64 blockers = occ & mag.bishopMask[sqr];
+                int shift = 32 - mag.BBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr]
+                        ^ (int)(blockers>>32)*(int)(mag.bishopMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.bishopAttackArr[sqr][key];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+            else if(charBoard[sqr] == 'Q')
+            {
+                U64 blockers = occ & mag.rookMask[sqr];
+                int shift = 32 - mag.RBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
+                        ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
+
+                blockers = occ & mag.bishopMask[sqr];
+                shift = 32 - mag.BBits[sqr];
+                key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr] ^
+                      (int)(blockers>>32) * (int)(mag.bishopMagics[sqr]>>32))
+                      >> shift;
+                attackedSqrs = mag.bishopAttackArr[sqr][key];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+            else if(charBoard[sqr] == 'K')
+            {
+                U64 attackedSqrs = mag.kingAttackArr[sqr];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+            else if(charBoard[sqr] == 'P')
+            {
+                U64 attackedSqrs = mag.wPawnAttackArr[sqr];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+        }
+        else
+        {
+            if(charBoard[sqr] == 'r')
+            {
+                U64 blockers = occ & mag.rookMask[sqr];
+                int shift = 32 - mag.RBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
+                        ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+            else if(charBoard[sqr] == 'n')
+            {
+                U64 attackedSqrs = mag.knightAttackArr[sqr];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+            else if(charBoard[sqr] == 'b')
+            {
+                U64 blockers = occ & mag.bishopMask[sqr];
+                int shift = 32 - mag.BBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr]
+                        ^ (int)(blockers>>32)*(int)(mag.bishopMagics[sqr]>>32))
+                       >> shift;
+                U64 attackedSqrs = mag.bishopAttackArr[sqr][key];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+            else if(charBoard[sqr] == 'q')
+            {
+                U64 blockers = occ & mag.rookMask[sqr];
+                int shift = 32 - mag.RBits[sqr];
+                int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
+                        ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
+                        >> shift;
+                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
+
+                blockers = occ & mag.bishopMask[sqr];
+                shift = 32 - mag.BBits[sqr];
+                key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr]
+                        ^ (int)(blockers>>32)*(int)(mag.bishopMagics[sqr]>>32))
+                        >> shift;
+                attackedSqrs = mag.bishopAttackArr[sqr][key];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+            else if(charBoard[sqr] == 'k')
+            {
+                U64 attackedSqrs = mag.kingAttackArr[sqr];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+            else if(charBoard[sqr] == 'p')
+            {
+                U64 attackedSqrs = mag.bPawnAttackArr[sqr];
+
+                genAgMvsHelper(mvs, sqr, attackedSqrs);
+            }
+        }
+    }
+}
+
+
 unsigned long long int chessBoard::genHash()
 {
     // taken from the article on zobrist hashing on geeksforgeeks
@@ -100,6 +414,9 @@ void chessBoard::calcHash()
     int sideInt = (side == true) ? 0 : 1;
     for  (int i = A1; i <= H8; i++)
     {
+        if (charBoard[i] == ' ')
+            continue;
+
         if (charBoard[i] == 'R' || charBoard[i] == 'r')
             currPosHash ^= squaresHash[i][0][sideInt];
         else if (charBoard[i] == 'N' || charBoard[i] == 'n')
@@ -202,6 +519,9 @@ int chessBoard::squareWithKing(bool sideToFind)
 
     for (int i=A1; i<=H8; i++)
     {
+        if (charBoard[i] == ' ')
+            continue;
+
         if (sideToFind == true && charBoard[i] == 'K')
         {
             ret = i;
@@ -214,6 +534,7 @@ int chessBoard::squareWithKing(bool sideToFind)
         }
     }
 
+    // assert
     return ret;
 }
 
@@ -221,17 +542,8 @@ bool chessBoard::isInCheck(bool sideToFind){
 
     int sqrKing = squareWithKing(sideToFind);
 
-    move moves[MAX_NUM_OF_MVS];
-    numOfMvs = 0;
-    genMoves(moves);
-
-    for (int i = 0; i < numOfMvs; i++)
-    {
-        if ((int) moves[i].to == sqrKing)
-        {
-            return true;
-        }
-    }
+    if (isUnderAttack(sqrKing, !sideToFind))
+        return true;
 
     return false;
 }
@@ -263,10 +575,14 @@ void chessBoard::calcAttackSqrRook(move* mvs, int sqr)
         attackedSqrs >>= (frwd+1);
         dist += frwd+1;
 
-        //mvs.push_back(move(sqr, dist-1, 0));
         mvs[numOfMvs].from = sqr;
         mvs[numOfMvs].to = dist-1;
         mvs[numOfMvs].flag = 0;
+
+        if (charBoard[dist-1] != ' ')
+            mvs[numOfMvs].score = 10 * pValue.lookupValue(charBoard[dist-1]) -
+                                  pValue.lookupValue(charBoard[sqr]);
+
         numOfMvs++;
 
         if (frwd == 63)
@@ -303,10 +619,14 @@ void chessBoard::calcAttackSqrBishop(move* mvs, int sqr)
         attackedSqrs >>= frwd+1;
         dist += frwd+1;
 
-        //mvs.push_back(move(sqr, dist-1, 0));
         mvs[numOfMvs].from = sqr;
         mvs[numOfMvs].to = dist-1;
         mvs[numOfMvs].flag = 0;
+
+        if (charBoard[dist-1] != ' ')
+            mvs[numOfMvs].score = 10 * pValue.lookupValue(charBoard[dist-1]) -
+                                  pValue.lookupValue(charBoard[sqr]);
+
         numOfMvs++;
 
         if (frwd == 63)
@@ -340,6 +660,11 @@ void chessBoard::calcAttackSqrKnight(move* mvs, int sqr)
         mvs[numOfMvs].from = sqr;
         mvs[numOfMvs].to = dist-1;
         mvs[numOfMvs].flag = 0;
+
+        if (charBoard[dist-1] != ' ')
+            mvs[numOfMvs].score = 10 * pValue.lookupValue(charBoard[dist-1]) -
+                                  pValue.lookupValue(charBoard[sqr]);
+
         numOfMvs++;
 
         if (frwd == 63)
@@ -366,6 +691,11 @@ void chessBoard::calcAttackSqrKing(move* mvs, int sqr)
         mvs[numOfMvs].from = sqr;
         mvs[numOfMvs].to = dist-1;
         mvs[numOfMvs].flag = 0;
+
+        if (charBoard[dist-1] != ' ')
+            mvs[numOfMvs].score = 10 * pValue.lookupValue(charBoard[dist-1]) -
+                                  pValue.lookupValue(charBoard[sqr]);
+
         numOfMvs++;
 
         if (frwd == 63)
@@ -383,8 +713,6 @@ void chessBoard::calcAttackSqrKing(move* mvs, int sqr)
             setBit(kingRookGap, G1);
 
             if ((occ & kingRookGap) == false)
-                // TODO: could use isSqrUnderAttack to check if sqrs between
-                // king and rook attacked
             {
                 mvs[numOfMvs].from = E1;
                 mvs[numOfMvs].to = G1;
@@ -400,7 +728,6 @@ void chessBoard::calcAttackSqrKing(move* mvs, int sqr)
             setBit(kingRookGap, C1);
             setBit(kingRookGap, D1);
             if ((occ & kingRookGap) == false)
-                // TODO: same as above
             {
                 mvs[numOfMvs].from = E1;
                 mvs[numOfMvs].to = C1;
@@ -420,7 +747,6 @@ void chessBoard::calcAttackSqrKing(move* mvs, int sqr)
             setBit(kingRookGap, G8);
 
             if ((occ & kingRookGap) == false)
-                // TODO: same as above
             {
                 mvs[numOfMvs].from = E8;
                 mvs[numOfMvs].to = G8;
@@ -436,7 +762,6 @@ void chessBoard::calcAttackSqrKing(move* mvs, int sqr)
             setBit(kingRookGap, C8);
             setBit(kingRookGap, D8);
             if ((occ & kingRookGap) == false)
-                // TODO: same as above
             {
                 mvs[numOfMvs].from = E8;
                 mvs[numOfMvs].to = C8;
@@ -466,6 +791,12 @@ void chessBoard::calcAttackSqrWhitePawn(move* mvs, int sqr)
                 mvs[numOfMvs].from = sqr;
                 mvs[numOfMvs].to = dist-1;
                 mvs[numOfMvs].flag = i;
+
+                if (charBoard[dist-1] != ' ')
+                    mvs[numOfMvs].score = 10 *
+                                          pValue.lookupValue(charBoard[dist-1])
+                                          - pValue.lookupValue(charBoard[sqr]);
+
                 numOfMvs++;
             }
         }
@@ -474,6 +805,12 @@ void chessBoard::calcAttackSqrWhitePawn(move* mvs, int sqr)
             mvs[numOfMvs].from = sqr;
             mvs[numOfMvs].to = dist-1;
             mvs[numOfMvs].flag = 0;
+
+            if (charBoard[dist-1] != ' ')
+                mvs[numOfMvs].score = 10 *
+                                      pValue.lookupValue(charBoard[dist-1])
+                                      - pValue.lookupValue(charBoard[sqr]);
+
             numOfMvs++;
         }
 
@@ -488,6 +825,9 @@ void chessBoard::calcAttackSqrWhitePawn(move* mvs, int sqr)
             mvs[numOfMvs].from = sqr;
             mvs[numOfMvs].to = ep;
             mvs[numOfMvs].flag = EP;
+
+            mvs[numOfMvs].score = 9;
+
             numOfMvs++;
         }
 
@@ -512,6 +852,12 @@ void chessBoard::calcAttackSqrBlackPawn(move* mvs, int sqr)
                 mvs[numOfMvs].from = sqr;
                 mvs[numOfMvs].to = dist-1;
                 mvs[numOfMvs].flag = i;
+
+                if (charBoard[dist-1] != ' ')
+                    mvs[numOfMvs].score = 10 *
+                                          pValue.lookupValue(charBoard[dist-1])
+                                          - pValue.lookupValue(charBoard[sqr]);
+
                 numOfMvs++;
             }
         }
@@ -520,6 +866,12 @@ void chessBoard::calcAttackSqrBlackPawn(move* mvs, int sqr)
             mvs[numOfMvs].from = sqr;
             mvs[numOfMvs].to = dist-1;
             mvs[numOfMvs].flag = 0;
+
+            if (charBoard[dist-1] != ' ')
+                mvs[numOfMvs].score = 10 *
+                                      pValue.lookupValue(charBoard[dist-1])
+                                      - pValue.lookupValue(charBoard[sqr]);
+
             numOfMvs++;
         }
 
@@ -534,6 +886,9 @@ void chessBoard::calcAttackSqrBlackPawn(move* mvs, int sqr)
             mvs[numOfMvs].from = sqr;
             mvs[numOfMvs].to = ep;
             mvs[numOfMvs].flag = EP;
+
+            mvs[numOfMvs].score = 9;
+
             numOfMvs++;
         }
 }
@@ -682,7 +1037,7 @@ void chessBoard::genMoves(move* moves)
 
 U64* chessBoard::getBitBoard(char c)
 {
-    // TODO: can do sanity check for c here 
+    // assert for c
 
     U64* ret=0;
     switch (c)
@@ -985,64 +1340,46 @@ bool chessBoard::makeMove(move mv){
     else if (castlRights[3] == true && (from == A8 || to == A8))
         castlRights[3] = false;
 
-    // TODO for clarity can move it to the bottom
-    side = !side;
-
     bool ret = true;
 
-    // TODO could use isInCheck proc here
-    int sqrKing = squareWithKing(!side);
+    if (isInCheck(side))
+        ret = false;
 
-    move moves[MAX_NUM_OF_MVS];
-    numOfMvs = 0;
-    genMoves(moves);
-
-    for (int i = 0; i < numOfMvs; i++)
+    // TODO: a bit of a hack with pawns below so should think of a
+    // better way of doing it
+    if (mv.flag == CASTLING)
     {
-        if ((int) moves[i].to == sqrKing)
+        if ((int)mv.to == C1)
         {
-            ret = false;
-            break;
+            if (isUnderAttack(E1, !side) || isUnderAttack(D1, !side) ||
+                charBoard[C2] == 'p' || charBoard[D2] == 'p' ||
+                charBoard[E2] == 'p' || charBoard[F2] == 'p' )
+                ret = false;
         }
-        else if (mv.flag == CASTLING)
+        else if ((int)mv.to == G1)
         {
-            // TODO: a bit of a hack with pawns below so should think of a
-            // better way of doing it 
-            if ((int)mv.to == C1 &&
-                ( (int) moves[i].to == E1 || (int) moves[i].to == D1 ||
-                  charBoard[C2] == 'p' || charBoard[D2] == 'p' ||
-                  charBoard[E2] == 'p' || charBoard[F2] == 'p' ) )
-            {
+            if (isUnderAttack(E1, !side) || isUnderAttack(F1, !side) ||
+                charBoard[G2] == 'p' || charBoard[D2] == 'p' ||
+                charBoard[E2] == 'p' || charBoard[F2] == 'p' )
                 ret = false;
-                break;
-            }
-            else if ((int)mv.to == G1 &&
-                    ( (int) moves[i].to == E1 || (int) moves[i].to == F1 ||
-                      charBoard[G2] == 'p' || charBoard[D2] == 'p' ||
-                      charBoard[E2] == 'p' || charBoard[F2] == 'p' ) )
-            {
+        }
+        else if ((int)mv.to == C8)
+        {
+            if (isUnderAttack(E8, !side) || isUnderAttack(D8, !side) ||
+                charBoard[C7] == 'P' || charBoard[D7] == 'P' ||
+                charBoard[E7] == 'P' || charBoard[F7] == 'P' )
                 ret = false;
-                break;
-            }
-            else if ((int)mv.to == C8 &&
-                    ((int) moves[i].to == E8 || (int) moves[i].to == D8 ||
-                    charBoard[C7] == 'P' || charBoard[D7] == 'P' ||
-                    charBoard[E7] == 'P' || charBoard[F7] == 'P' ) )
-            {
+        }
+        else if ((int)mv.to == G8)
+        {
+            if (isUnderAttack(E8, !side) || isUnderAttack(F8, !side) ||
+                charBoard[G7] == 'P' || charBoard[D7] == 'P' ||
+                charBoard[E7] == 'P' || charBoard[F7] == 'P' )
                 ret = false;
-                break;
-            }
-            else if ((int)mv.to == G8 &&
-                    ( (int) moves[i].to == E8 || (int) moves[i].to == F8 ||
-                    charBoard[G7] == 'P' || charBoard[D7] == 'P' ||
-                    charBoard[E7] == 'P' || charBoard[F7] == 'P' ) )
-            {
-                ret = false;
-                break;
-            }
         }
     }
 
+    side = !side;
     calcHash();
 
     return ret;
