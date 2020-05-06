@@ -46,7 +46,7 @@ bool squareOK(int s)
 void setBit(U64& b, int sqr)
 {
     // TODO: could use pre-prepared singleBit[64]
-    U64 u = 1; 
+    U64 u = 1;
     b |= (u << sqr);
 }
 
@@ -403,8 +403,8 @@ void chessBoard::genAggressiveMoves(move* mvs)
 unsigned long long int chessBoard::genHash()
 {
     // taken from the article on zobrist hashing on geeksforgeeks
-    std::uniform_int_distribution<unsigned long long int> dist(0, UINT64_MAX); 
-    return dist(mt); 
+    std::uniform_int_distribution<unsigned long long int> dist(0, UINT64_MAX);
+    return dist(mt);
 }
 
 void chessBoard::calcHash()
@@ -1043,41 +1043,41 @@ U64* chessBoard::getBitBoard(char c)
     switch (c)
     {
         case 'R' :
-            ret = &wRook_Occ;     
+            ret = &wRook_Occ;
         break;
         case 'N' :
-            ret = &wKnight_Occ;     
+            ret = &wKnight_Occ;
         break;
         case 'B' :
-            ret = &wBishop_Occ;     
+            ret = &wBishop_Occ;
         break;
         case 'Q' :
-            ret = &wQueen_Occ;     
+            ret = &wQueen_Occ;
         break;
         case 'K' :
-            ret = &wKing_Occ;     
+            ret = &wKing_Occ;
         break;
         case 'P' :
-            ret = &wPawn_Occ;     
+            ret = &wPawn_Occ;
         break;
 
         case 'r' :
-            ret = &bRook_Occ;     
+            ret = &bRook_Occ;
         break;
         case 'n' :
-            ret = &bKnight_Occ;     
+            ret = &bKnight_Occ;
         break;
         case 'b' :
-            ret = &bBishop_Occ;     
+            ret = &bBishop_Occ;
         break;
         case 'q' :
-            ret = &bQueen_Occ;     
+            ret = &bQueen_Occ;
         break;
         case 'k' :
-            ret = &bKing_Occ;     
+            ret = &bKing_Occ;
         break;
         case 'p' :
-            ret = &bPawn_Occ;     
+            ret = &bPawn_Occ;
         break;
 
         default:
@@ -1152,7 +1152,7 @@ bool chessBoard::makeMove(move mv){
     {
         int rookFrom = 0, rookTo = 0;
         if (to == C1)
-        { 
+        {
             rookFrom = A1, rookTo = D1;
         }
         else if (to == G1)
@@ -1417,8 +1417,8 @@ U64 Perft(chessBoard& board, int depth)
 {
     chessBoard boardCpy;
     U64 nodes = 0;
- 
-    if (depth == 0) 
+
+    if (depth == 0)
         return 1;
 
     move moves[MAX_NUM_OF_MVS];
@@ -1544,7 +1544,7 @@ bool savePosInFEN(chessBoard& board, std::string& pos)
                        8,  9,  10, 11, 12, 13, 14, 15,
                        0,  1,  2,  3,  4,  5,  6,  7  };
 
-    int emptySqrs = 0; 
+    int emptySqrs = 0;
     for (int i = A1; i <= H8; i++)
     {
         if (board.charBoard[sqrMapFENotation[i]] == ' ')

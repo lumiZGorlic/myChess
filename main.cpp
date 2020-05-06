@@ -314,7 +314,7 @@ void engineVsEngine()
     board.populateCharBoard();
     board.calcHash();
 
-    int searchDepth = 3, prefMv = 25;
+    int searchDepth = 3;
 
     board.printCharBoard();
     while (true)
@@ -417,6 +417,34 @@ void playChess ()
 }
 
 
+// after bench() in tscp
+void testSearch(){
+
+    chessBoard board;
+    //std::string pos( "rnbqkbnr/8/8/8/8/8/8/RNBQKBNR w KQkq - 0 1" );
+    std::string pos( "1rb2rk1/p4ppp/1p1qp1n1/3n2N1/2pP4/2P3P1/PPQ2PBP/R1B1R1K1 w - - 0 1" );
+
+    readInPosFromFEN (board, pos);
+    board.populateOccup();
+    board.populateCharBoard();
+
+    for (int i = 0; i < 3; i++)
+    {
+        clock_t begin = clock();
+
+        searchEngine se;
+        move m = se.doSearch(board, 3);
+
+        clock_t end = clock();
+        double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+        std::cout << "time elapsed is: " << elapsed_secs << std::endl;
+        std::cout << "number of nodes: " << se.nodes << std::endl;
+        printMove(m);
+    }
+}
+
+
 void handler(int sig) {
   void *array[10];
   size_t size;
@@ -438,7 +466,9 @@ int main ()
 {
     signal(SIGSEGV, handler);
 
-    debugMoveGen();
+    testSearch();
+
+    //debugMoveGen();
     //testMoveGenSpeed();
     //playDummyGame();
     //engineVsEngine();

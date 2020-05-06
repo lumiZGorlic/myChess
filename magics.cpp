@@ -53,7 +53,7 @@ void magics::saveInFile()
             magicFile << bishopMagics[i] << std::endl;
     }
     else
-        std::cout << "Unable to open file" << std::endl;    
+        std::cout << "Unable to open file" << std::endl;
 }
 
 
@@ -87,7 +87,7 @@ void magics::readFromFile()
         {
             U64 occ = *it;
             //int idx = ( occ * magic ) >> shift;
-            int idx = (unsigned)((int)occ*(int) rookMagics[sqr] 
+            int idx = (unsigned)((int)occ*(int) rookMagics[sqr]
                     ^ (int)(occ>>32)*(int)(rookMagics[sqr] >> 32)) >> shift;
             rookAttackArr[sqr][idx] = rookAttack(sqr, *it);
         }
@@ -304,7 +304,7 @@ void magics::genOccForLinesNDiags() {
                       6,  7,  8,  9, 10, 11, 12, 13,
                       7,  8,  9, 10, 11, 12, 13, 14  };
 
-    // diagonals running west-east i.e. 
+    // diagonals running west-east i.e.
     // {a8}, {a7,b8}, {a6,b7,c8} .... {g1,h2}, {h1}
 
     int diagWE0[]  = {56 };
@@ -473,7 +473,7 @@ void magics::genOccForLinesNDiags() {
         U64 zeroEdges = ~(edgeS | edgeN | edgeW | edgeE );
 
         // mapping the current square in the loop to the squares on the
-        // diagonal west-east the square belongs to 
+        // diagonal west-east the square belongs to
         std::vector<int> vTmp = v1[mapWE[mapReal[sqr]]];
         int N = vTmp.size();
         int maxVal = pow(2, N);
@@ -492,7 +492,7 @@ void magics::genOccForLinesNDiags() {
 
 
             // mapping the current square in the loop to the squares on the
-            // diagonal east-west the square belongs to 
+            // diagonal east-west the square belongs to
             std::vector<int> vTmp2 = v2[mapEW[mapReal[sqr]]];
             int N2 = vTmp2.size();
             int maxVal2 = pow(2, N2);
@@ -889,7 +889,7 @@ U64 magics::bishopAttack(int sqr, U64 occ) {
 
 /*
     how we use magics - say we have a rook on square i, the transformations
-    we do to arrive at attack table is: 
+    we do to arrive at attack table is:
     ( current position (occupancy), RBits[i], rookMagics[i] ) -> idx ->
        -> rookAttackArr[i][idx]
 
@@ -897,7 +897,7 @@ U64 magics::bishopAttack(int sqr, U64 occ) {
 void magics::calcMagicsRook () {
     // TODO analyze it so can understand it inside out
     // 4096 = 2^12 as e.g. for a rook on A1 we care about occupancy on 12
-    // squares (excluding edges) 
+    // squares (excluding edges)
     U64 used[4096];
 
     for (int sqr = A1; sqr <= H8; sqr++)
@@ -952,7 +952,7 @@ void magics::calcMagicsRook () {
 
 /*
     how we use magics - say we have a bishop on square i, the transformations
-    we do to arrive at attack table is: 
+    we do to arrive at attack table is:
     ( current position (occupancy), BBits[i], bishopMagics[i] ) -> idx ->
        -> bishopAttackArr[i][idx]
 

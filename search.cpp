@@ -61,7 +61,7 @@ move searchEngine::searchMain(chessBoard& board, int depth)
     move m(0, 0, 0);
     chessBoard boardCpy;
     int score = -20000000, tmp;
- 
+
     move moves[MAX_NUM_OF_MVS];
     board.numOfMvs = 0;
     board.genMoves(moves);
@@ -73,7 +73,7 @@ move searchEngine::searchMain(chessBoard& board, int depth)
         boardCpy = board;
 
         if (board.makeMove(moves[i]))
-        { 
+        {
             tmp = -search(board, depth - 1, -20000000, -score);
             if (tmp > score)
             {
@@ -122,7 +122,7 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
 
     chessBoard boardCpy;
     int tmp = 0;
- 
+
     for (int i = 0; i < board.numOfMvs; i++)
     {
         sortMoves(moves, board.numOfMvs, i);
@@ -131,7 +131,7 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
 
         if (board.makeMove(moves[i]))
         {
-            playedMoves = true;    
+            playedMoves = true;
 
             tmp = -search(board, depth - 1, -beta, -alpha);
             if (tmp >= beta)
@@ -199,6 +199,10 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
     // have to add 50 moves rule then ?
     for (int i = 0; i < board.numOfMvs; i++)
     {
+        // quiesce needs to have its own sort procedure and even
+        // better a separate move generation
+        sortMoves(moves, board.numOfMvs, i);
+
         if (board.charBoard[(int)(moves[i].to)] != ' ' || moves[i].flag == EP)
         {
             boardCpy = board;

@@ -4,7 +4,7 @@
 #include <set>
 #include <map>
 
-#define MAX_NUM_OF_MVS      250 
+#define MAX_NUM_OF_MVS      250
 
 enum { EP=1, CASTLING, PROMOTE_R, PROMOTE_N, PROMOTE_B, PROMOTE_Q };
 
@@ -21,7 +21,6 @@ enum {
 
 
 typedef unsigned long long U64;
-
 
 
 struct pieceValue {
@@ -95,7 +94,7 @@ struct magics {
 
     */
     std::set<U64> occupLines[64];
-    std::set<U64> occupDiags[64]; 
+    std::set<U64> occupDiags[64];
 
 
     U64 diagNW[64], diagNE[64], diagSW[64], diagSE[64];
@@ -235,10 +234,6 @@ struct chessBoard {
     int numOfMvs;
 
 
-
-    bool isUnderAttack(int sqr, bool sideAttacking);
-
-
     chessBoard();
     unsigned long long int genHash();
 
@@ -270,11 +265,11 @@ struct chessBoard {
     void genAgMvsHelper(move* mvs, int sqr, U64 attackedSqrs);
     void genAggressiveMoves(move* mvs);
 
-
     void genMoves(move* mvs);
     bool makeMove(move mv);
 
     int squareWithKing(bool sideToFind);
+    bool isUnderAttack(int sqr, bool sideAttacking);
     bool isInCheck(bool sideToFind);
 };
 
