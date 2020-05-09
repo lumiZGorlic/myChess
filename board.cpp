@@ -1415,7 +1415,6 @@ void printBoard2(const U64& b)
 
 U64 Perft(chessBoard& board, int depth)
 {
-    chessBoard boardCpy;
     U64 nodes = 0;
 
     if (depth == 0)
@@ -1425,10 +1424,10 @@ U64 Perft(chessBoard& board, int depth)
     board.numOfMvs = 0;
     board.genMoves(moves);
 
+    chessBoard boardCpy = board;
+
     for (int i = 0; i < board.numOfMvs; i++)
     {
-        boardCpy = board;
-
         if (board.makeMove(moves[i]))
         {
             int tmp = Perft(board, depth - 1);
@@ -1472,7 +1471,7 @@ void debugMoveGen () {
 
 
     // same positions, not as many moves
-    debugInput.push_back(debugItem("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    /*debugInput.push_back(debugItem("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
                  {20, 400, 8902, 197281 }));
     debugInput.push_back(debugItem("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -",
                  { 48, 2039, 97862 }));
@@ -1483,10 +1482,10 @@ void debugMoveGen () {
     debugInput.push_back(debugItem("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8 ",
                  { 44, 1486, 62379, 2103487 }));
     debugInput.push_back(debugItem("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10",
-                 { 46, 2079, 89890, 3894594 }));
+                 { 46, 2079, 89890, 3894594 }));*/
 
 
-    /*debugInput.push_back(debugItem("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    debugInput.push_back(debugItem("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
                  {20, 400, 8902, 197281, 4865609, 119060324 }));
     debugInput.push_back(debugItem("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -",
                  { 48, 2039, 97862, 4085603, 193690690 }));
@@ -1497,7 +1496,7 @@ void debugMoveGen () {
     debugInput.push_back(debugItem("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8 ",
                  { 44, 1486, 62379, 2103487, 89941194 }));
     debugInput.push_back(debugItem("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10",
-                 { 46, 2079, 89890, 3894594, 164075551 }));*/
+                 { 46, 2079, 89890, 3894594, 164075551 }));
 
     std::vector<debugItem>::iterator it;
     for (it = debugInput.begin(); it != debugInput.end(); it++)

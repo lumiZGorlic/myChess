@@ -7,8 +7,9 @@
 - test against TSCP in terms of strength, speed (move generation) etc.
   look at https://chess.stackexchange.com/questions/12790/how-to-measure-strength-of-my-own-chess-engine
 
-- extend search (PV, TT etc) and evaluation
+- analyse and improve search by adding some techniques and also evaluation
 
 - improve quiesce
 
+- end game, opening book
 

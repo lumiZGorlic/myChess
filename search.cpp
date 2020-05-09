@@ -59,18 +59,17 @@ move searchEngine::searchMain(chessBoard& board, int depth)
     nodes++;
 
     move m(0, 0, 0);
-    chessBoard boardCpy;
     int score = -20000000, tmp;
 
     move moves[MAX_NUM_OF_MVS];
     board.numOfMvs = 0;
     board.genMoves(moves);
 
+    chessBoard boardCpy = board;
+
     for (int i = 0; i < board.numOfMvs; i++)
     {
         sortMoves(moves, board.numOfMvs, i);
-
-        boardCpy = board;
 
         if (board.makeMove(moves[i]))
         {
@@ -85,11 +84,20 @@ move searchEngine::searchMain(chessBoard& board, int depth)
         board = boardCpy;
     }
 
+    tt.save(board.currPosHash, depth, FULL, score, 20000000);
+
     return m;
 }
 
 int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
 {
+    //assert(alpha < beta);
+    int origAlpha = alpha;
+
+    int ttScore = tt.probe(board.currPosHash, depth, alpha, beta);
+    if (ttScore != NO_TT_ENTRY)
+        return ttScore;
+
     if (depth == 0)
     {
         return quiesce(board, alpha, beta);
@@ -120,14 +128,12 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
     board.numOfMvs = 0;
     board.genMoves(moves);
 
-    chessBoard boardCpy;
+    chessBoard boardCpy = board;
     int tmp = 0;
 
     for (int i = 0; i < board.numOfMvs; i++)
     {
         sortMoves(moves, board.numOfMvs, i);
-
-        boardCpy = board;
 
         if (board.makeMove(moves[i]))
         {
@@ -135,7 +141,11 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
 
             tmp = -search(board, depth - 1, -beta, -alpha);
             if (tmp >= beta)
+            {
+                // needs to be boardCpy as board has been modified at this point
+                tt.save(boardCpy.currPosHash, depth, BETA, alpha, beta);
                 return beta;
+            }
             if (tmp > alpha)
                 alpha = tmp;
         }
@@ -157,6 +167,11 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
     // if depth 1 in mainSearch will be incorrect so need to handle in quiesce
     if (board.fifty >= 100)
         return 0;
+
+    if (alpha == origAlpha)
+        tt.save(board.currPosHash, depth, ALPHA, alpha, beta);
+    else
+        tt.save(board.currPosHash, depth, FULL,  alpha, beta);
 
     return alpha;
 }
@@ -183,6 +198,7 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
     // TODO have to modify it to handle mate etc
     // TODO might be worth adding some margin
     int standPat = eval(board);
+
     if( standPat >= beta )
         return beta;
     if( alpha < standPat )
@@ -192,7 +208,7 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
     board.numOfMvs = 0;
     board.genMoves(moves);
 
-    chessBoard boardCpy;
+    chessBoard boardCpy = board;
     int tmp = 0;
 
     // TODO add checks, promotions etc
@@ -205,8 +221,6 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
 
         if (board.charBoard[(int)(moves[i].to)] != ' ' || moves[i].flag == EP)
         {
-            boardCpy = board;
-
             if (board.makeMove(moves[i]))
             {
                  tmp = -quiesce(board, -beta, -alpha);

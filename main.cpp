@@ -427,13 +427,15 @@ void testSearch(){
     readInPosFromFEN (board, pos);
     board.populateOccup();
     board.populateCharBoard();
+    board.calcHash();
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 5; i++)
     {
         clock_t begin = clock();
 
         searchEngine se;
-        move m = se.doSearch(board, 3);
+        move m = se.doSearch(board, i+1);
+        //move m = se.doSearch(board, 2);
 
         clock_t end = clock();
         double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
@@ -461,14 +463,18 @@ void handler(int sig) {
 
 magics mag;
 pieceValue pValue;
+transpositionTable tt;
+unsigned long long int squaresHash[64][6][2];
+unsigned long long int sideHash;
+unsigned long long int epHash[64];
 
 int main ()
 {
     signal(SIGSEGV, handler);
 
-    testSearch();
+    //testSearch();
 
-    //debugMoveGen();
+    debugMoveGen();
     //testMoveGenSpeed();
     //playDummyGame();
     //engineVsEngine();

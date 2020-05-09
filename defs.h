@@ -4,6 +4,11 @@
 #include <set>
 #include <map>
 
+// value biger than max alpha/beta so safe to use it to
+// signal that no valid entry in tt
+#define NO_TT_ENTRY   22000000
+#define NUM_OF_TT_ENTRIES 33554432
+
 #define MAX_NUM_OF_MVS      250
 
 enum { EP=1, CASTLING, PROMOTE_R, PROMOTE_N, PROMOTE_B, PROMOTE_Q };
@@ -21,6 +26,28 @@ enum {
 
 
 typedef unsigned long long U64;
+
+
+enum ttEntryType {ALPHA, BETA, FULL};
+
+struct ttEntry {
+
+    U64 hash;
+    int depth;
+    ttEntryType eType;
+    int alpha;
+    int beta;
+
+};
+
+struct transpositionTable {
+
+    ttEntry table[NUM_OF_TT_ENTRIES];
+
+    void save(U64 hash, int depth, ttEntryType eType, int alpha, int beta);
+    int  probe(U64 hash, int depth, int alpha, int beta);
+
+};
 
 
 struct pieceValue {
@@ -191,9 +218,6 @@ struct magics {
 };
 
 
-extern magics mag;
-extern pieceValue pValue;
-
 
 // TODO: if use char here then need to convert char to int and vice-versa
 // is it good solution ?
@@ -222,11 +246,6 @@ struct chessBoard {
     std::bitset<4> castlRights;
     int ep;
     int fifty;
-
-    // TODO: is it enough ? what about castling etc ?
-    unsigned long long int squaresHash[64][6][2];
-    unsigned long long int sideHash;
-    unsigned long long int epHash[64];
 
     unsigned long long int currPosHash;
     std::vector<unsigned long long int> historyHash;
@@ -313,4 +332,13 @@ void debugMoveGen ();
 bool savePosInFEN(chessBoard& board, std::string& pos);
 bool readInPosFromFEN(chessBoard& board, std::string pos);
 
+
+extern magics mag;
+extern pieceValue pValue;
+extern transpositionTable tt;
+
+// TODO: is it enough ? what about castling etc ?
+extern unsigned long long int squaresHash[64][6][2];
+extern unsigned long long int sideHash;
+extern unsigned long long int epHash[64];
 
