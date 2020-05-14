@@ -1,5 +1,9 @@
 #include "defs.h"
-#include <iostream>
+#include "tt.h"
+
+
+transpositionTable tt;
+
 
 void transpositionTable::save(U64 hash, int depth, ttEntryType eType,
                               int alpha, int beta)

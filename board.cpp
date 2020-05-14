@@ -1,7 +1,13 @@
 #include "defs.h"
+#include "board.h"
+#include "magics.h"
+#include "misc.h"
+
+#include <map>
+#include <vector>
+#include <bitset>
 #include <random>
 #include <iostream>
-#include <fstream>
 
 // TODO: should int be used for square or some other type
 // TODO: int should be unsigned or not ? why ?
@@ -10,45 +16,14 @@
 // TODO: think about what should be inline and what shouldn't
 // TODO identify if sth can be passed by ref/pnt rather than copied etc
 
-
 // TODO investigate why this needs to be global etc
 std::mt19937 mt(01234567);
 
+pieceValue pValue;
 
-// make it inline ??
-int rank(int sqr)
-{
-    return sqr / 8;
-}
-
-int file(int sqr)
-{
-    return sqr % 8;
-}
-
-int square(int rank, int file)
-{
-    return 8 * rank + file;
-}
-
-bool rankFileOK(int s)
-{
-    return (s >= 0 && s <= 7) ? true : false;
-}
-
-bool squareOK(int s)
-{
-    return (s >= A1 && s <= H8) ? true : false;
-}
-
-// TODO: also should have sth like resetBit which could
-// help simplify the code
-void setBit(U64& b, int sqr)
-{
-    // TODO: could use pre-prepared singleBit[64]
-    U64 u = 1;
-    b |= (u << sqr);
-}
+unsigned long long int squaresHash[64][6][2];
+unsigned long long int sideHash;
+unsigned long long int epHash[64];
 
 
 chessBoard::chessBoard() :
@@ -247,6 +222,11 @@ void chessBoard::genAgMvsHelper(move* mvs, int sqr, U64 attackedSqrs)
         mvs[numOfMvs].from = sqr;
         mvs[numOfMvs].to = dist-1;
         mvs[numOfMvs].flag = 0;
+
+        if (charBoard[dist-1] != ' ')
+            mvs[numOfMvs].score = 10 * pValue.lookupValue(charBoard[dist-1]) -
+                                  pValue.lookupValue(charBoard[sqr]);
+
         numOfMvs++;
 
         if (frwd == 63)
@@ -256,7 +236,8 @@ void chessBoard::genAgMvsHelper(move* mvs, int sqr, U64 attackedSqrs)
 
 
 // needs to take an array
-// TODO finish and use it in quiesce
+// TODO finish and use it in quiesce. need to compare it against existing
+// method.
 void chessBoard::genAggressiveMoves(move* mvs)
 {
     // need to generate a bitmap for a king to see if some
@@ -330,9 +311,12 @@ void chessBoard::genAggressiveMoves(move* mvs)
             }
             else if(charBoard[sqr] == 'P')
             {
-                U64 attackedSqrs = mag.wPawnAttackArr[sqr];
+                //U64 attackedSqrs = mag.wPawnAttackArr[sqr];
 
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                //genAgMvsHelper(mvs, sqr, attackedSqrs);
+
+                // should do the job better as it detects ep move too
+                calcAttackSqrWhitePawn(mvs, sqr);
             }
         }
         else
@@ -391,9 +375,12 @@ void chessBoard::genAggressiveMoves(move* mvs)
             }
             else if(charBoard[sqr] == 'p')
             {
-                U64 attackedSqrs = mag.bPawnAttackArr[sqr];
+                //U64 attackedSqrs = mag.bPawnAttackArr[sqr];
 
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                //genAgMvsHelper(mvs, sqr, attackedSqrs);
+
+                // should do the job better as it detects ep move too
+                calcAttackSqrBlackPawn(mvs, sqr);
             }
         }
     }
@@ -1383,359 +1370,5 @@ bool chessBoard::makeMove(move mv){
     calcHash();
 
     return ret;
-}
-
-
-void printBoard(const U64& b)
-{
-    // code for printing the chess board
-    for (int i = 7; i >= 0; i--)
-    {
-        for (int j = 0; j <= 7; j++)
-             std::cout << ((b >> (8*i+j)) & 1);
-
-        std::cout << std::endl;
-    }
-}
-
-void printBoard2(const U64& b)
-{
-    // code for printing the chess board
-    for (int i = 7; i >= 0; i--)
-    {
-        std::cout << "------------------------------" << std::endl;
-
-        for (int j = 0; j <= 7; j++)
-             std::cout << ((b >> (8*i+j)) & 1) << " | ";
-
-        std::cout << std::endl;
-    }
-
-}
-
-U64 Perft(chessBoard& board, int depth)
-{
-    U64 nodes = 0;
-
-    if (depth == 0)
-        return 1;
-
-    move moves[MAX_NUM_OF_MVS];
-    board.numOfMvs = 0;
-    board.genMoves(moves);
-
-    chessBoard boardCpy = board;
-
-    for (int i = 0; i < board.numOfMvs; i++)
-    {
-        if (board.makeMove(moves[i]))
-        {
-            int tmp = Perft(board, depth - 1);
-            nodes += tmp;
-        }
-
-        board = boardCpy;
-    }
-
-    return nodes;
-}
-
-U64 Perft2()
-{
-    chessBoard board;
-
-    std::string pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    readInPosFromFEN (board, pos);
-    board.populateOccup();
-    board.populateCharBoard();
-
-    int depth = 4;
-    std::cin >> depth;
-
-    clock_t begin = clock();
-
-    int res = Perft(board, depth);
-
-    clock_t end = clock();
-    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-
-    std::cout << "spent " << elapsed_secs << " at depth " << depth << std::endl;
-    std::cout << "res is: " << res << std::endl;
-
-    return res;
-}
-
-void debugMoveGen () {
-
-    std::vector<debugItem> debugInput;
-
-
-    // same positions, not as many moves
-    /*debugInput.push_back(debugItem("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-                 {20, 400, 8902, 197281 }));
-    debugInput.push_back(debugItem("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -",
-                 { 48, 2039, 97862 }));
-    debugInput.push_back(debugItem("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -",
-                 { 14, 191, 2812, 43238, 674624 }));
-    debugInput.push_back(debugItem("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
-                 { 6, 264, 9467, 422333 }));
-    debugInput.push_back(debugItem("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8 ",
-                 { 44, 1486, 62379, 2103487 }));
-    debugInput.push_back(debugItem("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10",
-                 { 46, 2079, 89890, 3894594 }));*/
-
-
-    debugInput.push_back(debugItem("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-                 {20, 400, 8902, 197281, 4865609, 119060324 }));
-    debugInput.push_back(debugItem("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq -",
-                 { 48, 2039, 97862, 4085603, 193690690 }));
-    debugInput.push_back(debugItem("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - -",
-                 { 14, 191, 2812, 43238, 674624, 11030083, 178633661 }));
-    debugInput.push_back(debugItem("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",
-                 { 6, 264, 9467, 422333, 15833292, 706045033 }));
-    debugInput.push_back(debugItem("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8 ",
-                 { 44, 1486, 62379, 2103487, 89941194 }));
-    debugInput.push_back(debugItem("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10",
-                 { 46, 2079, 89890, 3894594, 164075551 }));
-
-    std::vector<debugItem>::iterator it;
-    for (it = debugInput.begin(); it != debugInput.end(); it++)
-    {
-        chessBoard board;
-
-        readInPosFromFEN (board, it->pos);
-        board.populateOccup();
-        board.populateCharBoard();
-        //printBoard2 (board.occ);
-        //board.printCharBoard();
-
-        int max = (it->perftResults).size();
-        for (int i = 0; i < max; i++)
-        {
-            clock_t begin = clock();
-
-            U64 tmp = Perft(board, i+1);
-
-            if(tmp != (it->perftResults)[i])
-                std::cout << "perft failed for position: " << it->pos
-                          << " at depth " << i+1
-                          << " ,should be " << (it->perftResults)[i]
-                          << " but returned " << tmp << std::endl;
-
-            clock_t end = clock();
-            double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-            std::cout << "spent " << elapsed_secs << " for " << it->pos
-                      << " at depth " << i+1 << std::endl;
-        }
-    }
-}
-
-
-bool savePosInFEN(chessBoard& board, std::string& pos)
-{
-    int sqrMapFENotation[64] = {
-                       56, 57, 58, 59, 60, 61, 62, 63,
-                       48, 49, 50, 51, 52, 53, 54, 55,
-                       40, 41, 42, 43, 44, 45, 46, 47,
-                       32, 33, 34, 35, 36, 37, 38, 39,
-                       24, 25, 26, 27, 28, 29, 30, 31,
-                       16, 17, 18, 19, 20, 21, 22, 23,
-                       8,  9,  10, 11, 12, 13, 14, 15,
-                       0,  1,  2,  3,  4,  5,  6,  7  };
-
-    int emptySqrs = 0;
-    for (int i = A1; i <= H8; i++)
-    {
-        if (board.charBoard[sqrMapFENotation[i]] == ' ')
-        {
-            emptySqrs++;
-        }
-        else
-        {
-            if (emptySqrs > 0)
-                pos += std::to_string(emptySqrs);
-            pos += board.charBoard[sqrMapFENotation[i]];
-
-            emptySqrs = 0;
-        }
-
-        if(i % 8 == 7)
-        {
-            if (emptySqrs > 0)
-                pos += std::to_string(emptySqrs);
-            if (i != 63)
-                pos += "/";
-
-            emptySqrs = 0;
-        }
-    }
-
-    if (board.side == true)
-        pos  += " w ";
-    else if (board.side == false)
-        pos  += " b ";
-
-    if (board.castlRights[0] == 1)
-        pos += "K";
-    if (board.castlRights[1] == 1)
-        pos += "Q";
-    if (board.castlRights[2] == 1)
-        pos += "k";
-    if (board.castlRights[3] == 1)
-        pos += "q";
-
-    if (pos.back() != ' ')
-        pos += " ";
-
-    // TODO finish
-    if (board.ep == -1)
-        pos += "- ";
-    else
-    {
-
-    }
-
-    // TODO should return false if unsuccessful
-    return true;
-}
-
-bool readInPosFromFEN(chessBoard& board, std::string pos)
-{
-    // TODO: could add string verification (regular expression etc)
-    int i=0, square=0;
-
-    int sqrMapFENotation[64] = {
-                       56, 57, 58, 59, 60, 61, 62, 63,
-                       48, 49, 50, 51, 52, 53, 54, 55,
-                       40, 41, 42, 43, 44, 45, 46, 47,
-                       32, 33, 34, 35, 36, 37, 38, 39,
-                       24, 25, 26, 27, 28, 29, 30, 31,
-                       16, 17, 18, 19, 20, 21, 22, 23,
-                       8,  9,  10, 11, 12, 13, 14, 15,
-                       0,  1,  2,  3,  4,  5,  6,  7  };
-
-    do {
-        if (pos[i] == '/')
-        {
-        }
-        else if (pos[i] == 'K')
-        {
-            setBit(board.wKing_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'Q')
-        {
-            setBit(board.wQueen_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'R')
-        {
-            setBit(board.wRook_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'B')
-        {
-            setBit(board.wBishop_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'N')
-        {
-            setBit(board.wKnight_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'P')
-        {
-            setBit(board.wPawn_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'k')
-        {
-            setBit(board.bKing_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'q')
-        {
-            setBit(board.bQueen_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'r')
-        {
-            setBit(board.bRook_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'b')
-        {
-            setBit(board.bBishop_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'n')
-        {
-            setBit(board.bKnight_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else if (pos[i] == 'p')
-        {
-            setBit(board.bPawn_Occ, sqrMapFENotation[square]);
-            square++;
-        }
-        else
-        {
-            int ic = pos[i] - '0';
-            square += ic;
-        }
-        i++;
-
-    } while (pos[i] != ' ');
-
-    i++;
-    if (pos[i] == 'w')
-        board.side = true;
-    else
-        board.side = false;
-
-    i += 2;
-
-    // all bits set to zero
-    board.castlRights.reset();
-
-    if (pos[i] == '-')
-        i++;
-    else
-    {
-        while (pos[i] != ' ')
-        {
-            switch (pos[i])
-            {
-                case 'K':
-                    board.castlRights[0] = true;
-                    break;
-                case 'Q':
-                    board.castlRights[1] = true;
-                    break;
-                case 'k':
-                    board.castlRights[2] = true;
-                    break;
-                case 'q':
-                    board.castlRights[3] = true;
-                    break;
-            }
-            i++;
-        }
-    }
-
-    i++;
-
-    if (pos[i] == '-')
-        i++;
-    else
-    {
-        board.ep = (pos[i] - 'a') + 8*(pos[i+1] - '1');
-        i += 2;
-    }
-
-    i++;
-
-    // TODO should return false if unsuccessful
-    return true;
 }
 

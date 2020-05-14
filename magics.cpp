@@ -1,9 +1,12 @@
 #include "defs.h"
+#include "magics.h"
+#include "misc.h"
+
 #include <random>
-#include <iostream>
-#include <fstream>
 #include <vector>
 #include <set>
+#include <iostream>
+#include <fstream>
 
 // TODO need to understand why there're two ways to calculate
 //  it in calcMagics. Look at rhysre website (below the link)
@@ -11,6 +14,7 @@
 //  https://rhysre.net/2019/01/15/magic-bitboards.html
 //  understand random_U64_fewbits and random_U64. maybe use c++ functions.
 
+magics mag;
 
 magics::magics()
 {

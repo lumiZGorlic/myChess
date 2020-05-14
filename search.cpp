@@ -1,6 +1,10 @@
 #include "defs.h"
+#include "search.h"
+#include "tt.h"
+#include "board.h"
+#include "eval.h"
+
 #include <iostream>
-#include <vector>
 #include <chrono>
 #include <assert.h>
 
@@ -59,7 +63,7 @@ move searchEngine::searchMain(chessBoard& board, int depth)
     nodes++;
 
     move m(0, 0, 0);
-    int score = -20000000, tmp;
+    int bestScore = -20000000, score;
 
     move moves[MAX_NUM_OF_MVS];
     board.numOfMvs = 0;
@@ -73,10 +77,10 @@ move searchEngine::searchMain(chessBoard& board, int depth)
 
         if (board.makeMove(moves[i]))
         {
-            tmp = -search(board, depth - 1, -20000000, -score);
-            if (tmp > score)
+            score = -search(board, depth - 1, -20000000, -bestScore);
+            if (score > bestScore)
             {
-                score = tmp;
+                bestScore = score;
                 m = moves[i];
             }
         }
@@ -84,7 +88,7 @@ move searchEngine::searchMain(chessBoard& board, int depth)
         board = boardCpy;
     }
 
-    tt.save(board.currPosHash, depth, FULL, score, 20000000);
+    tt.save(board.currPosHash, depth, FULL, bestScore, 20000000);
 
     return m;
 }
@@ -129,7 +133,7 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
     board.genMoves(moves);
 
     chessBoard boardCpy = board;
-    int tmp = 0;
+    int score = 0;
 
     for (int i = 0; i < board.numOfMvs; i++)
     {
@@ -139,15 +143,15 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
         {
             playedMoves = true;
 
-            tmp = -search(board, depth - 1, -beta, -alpha);
-            if (tmp >= beta)
+            score = -search(board, depth - 1, -beta, -alpha);
+            if (score >= beta)
             {
-                // needs to be boardCpy as board has been modified at this point
+                // needs to be boardCpy as board's been modified by this point
                 tt.save(boardCpy.currPosHash, depth, BETA, alpha, beta);
                 return beta;
             }
-            if (tmp > alpha)
-                alpha = tmp;
+            if (score > alpha)
+                alpha = score;
         }
 
         board = boardCpy;
@@ -209,7 +213,7 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
     board.genMoves(moves);
 
     chessBoard boardCpy = board;
-    int tmp = 0;
+    int score = 0;
 
     // TODO add checks, promotions etc
     // have to add 50 moves rule then ?
@@ -223,11 +227,11 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
         {
             if (board.makeMove(moves[i]))
             {
-                 tmp = -quiesce(board, -beta, -alpha);
-                 if (tmp >= beta)
+                 score = -quiesce(board, -beta, -alpha);
+                 if (score >= beta)
                      return beta;
-                 if (tmp > alpha)
-                     alpha = tmp;
+                 if (score > alpha)
+                     alpha = score;
             }
 
             board = boardCpy;

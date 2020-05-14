@@ -1,10 +1,6 @@
 #include "defs.h"
-
-#define PAWN_VALUE   100
-#define KNIGHT_VALUE 320
-#define BISHOP_VALUE 330
-#define ROOK_VALUE   500
-#define QUEEN_VALUE  900
+#include "eval.h"
+#include "board.h"
 
 int mapping[] = { 56, 57, 58, 59, 60, 61, 62, 63,
                   48, 49, 50, 51, 52, 53, 54, 55,
