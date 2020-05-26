@@ -198,20 +198,8 @@ bool chessBoard::isUnderAttack(int sqr, bool sideAttacking){
     return false;
 }
 
-// TODO can/should be more generic and used in calcAttackSqrRook and the like
-void chessBoard::genAgMvsHelper(move* mvs, int sqr, U64 attackedSqrs)
+void chessBoard::genMovesHelper(move* mvs, int sqr, U64 attackedSqrs)
 {
-    if (side == true)
-    {
-        attackedSqrs &= ~white_Occ;
-        attackedSqrs &= black_Occ;
-    }
-    else
-    {
-        attackedSqrs &= ~black_Occ;
-        attackedSqrs &= white_Occ;
-    }
-
     int dist = 0;
     while (attackedSqrs)
     {
@@ -234,13 +222,9 @@ void chessBoard::genAgMvsHelper(move* mvs, int sqr, U64 attackedSqrs)
     }
 }
 
-
-// needs to take an array
-// TODO finish and use it in quiesce. need to compare it against existing
-// method.
 void chessBoard::genAggressiveMoves(move* mvs)
 {
-    // need to generate a bitmap for a king to see if some
+    // TODO need to generate a bitmap for a king to see if some
     // moves result in a check
     /* int kingSqr = ....
 
@@ -248,6 +232,7 @@ void chessBoard::genAggressiveMoves(move* mvs)
       minus occupancy
     */
 
+    U64 attackedSqrs = 0;
     for (int sqr=A1; sqr<=H8; sqr++)
     {
         if(charBoard[sqr] == ' ')
@@ -255,6 +240,7 @@ void chessBoard::genAggressiveMoves(move* mvs)
             continue;
         }
 
+        attackedSqrs = 0;
         if (side == true)
         {
             if(charBoard[sqr] == 'R')
@@ -264,15 +250,11 @@ void chessBoard::genAggressiveMoves(move* mvs)
                 int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
                         ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
                         >> shift;
-                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
-
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                attackedSqrs = mag.rookAttackArr[sqr][key];
             }
             else if(charBoard[sqr] == 'N')
             {
-                U64 attackedSqrs = mag.knightAttackArr[sqr];
-
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                attackedSqrs = mag.knightAttackArr[sqr];
             }
             else if(charBoard[sqr] == 'B')
             {
@@ -281,9 +263,7 @@ void chessBoard::genAggressiveMoves(move* mvs)
                 int key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr]
                         ^ (int)(blockers>>32)*(int)(mag.bishopMagics[sqr]>>32))
                         >> shift;
-                U64 attackedSqrs = mag.bishopAttackArr[sqr][key];
-
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                attackedSqrs = mag.bishopAttackArr[sqr][key];
             }
             else if(charBoard[sqr] == 'Q')
             {
@@ -292,31 +272,29 @@ void chessBoard::genAggressiveMoves(move* mvs)
                 int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
                         ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
                         >> shift;
-                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
+                attackedSqrs = mag.rookAttackArr[sqr][key];
 
                 blockers = occ & mag.bishopMask[sqr];
                 shift = 32 - mag.BBits[sqr];
                 key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr] ^
                       (int)(blockers>>32) * (int)(mag.bishopMagics[sqr]>>32))
                       >> shift;
-                attackedSqrs = mag.bishopAttackArr[sqr][key];
-
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                attackedSqrs |= mag.bishopAttackArr[sqr][key];
             }
             else if(charBoard[sqr] == 'K')
             {
-                U64 attackedSqrs = mag.kingAttackArr[sqr];
-
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                attackedSqrs = mag.kingAttackArr[sqr];
             }
             else if(charBoard[sqr] == 'P')
             {
-                //U64 attackedSqrs = mag.wPawnAttackArr[sqr];
-
-                //genAgMvsHelper(mvs, sqr, attackedSqrs);
-
-                // should do the job better as it detects ep move too
                 calcAttackSqrWhitePawn(mvs, sqr);
+            }
+
+            if (attackedSqrs)
+            {
+                attackedSqrs &= ~white_Occ;
+                attackedSqrs &= black_Occ;
+                genMovesHelper(mvs, sqr, attackedSqrs);
             }
         }
         else
@@ -328,15 +306,11 @@ void chessBoard::genAggressiveMoves(move* mvs)
                 int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
                         ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
                         >> shift;
-                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
-
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                attackedSqrs = mag.rookAttackArr[sqr][key];
             }
             else if(charBoard[sqr] == 'n')
             {
-                U64 attackedSqrs = mag.knightAttackArr[sqr];
-
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                attackedSqrs = mag.knightAttackArr[sqr];
             }
             else if(charBoard[sqr] == 'b')
             {
@@ -345,9 +319,7 @@ void chessBoard::genAggressiveMoves(move* mvs)
                 int key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr]
                         ^ (int)(blockers>>32)*(int)(mag.bishopMagics[sqr]>>32))
                        >> shift;
-                U64 attackedSqrs = mag.bishopAttackArr[sqr][key];
-
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                attackedSqrs = mag.bishopAttackArr[sqr][key];
             }
             else if(charBoard[sqr] == 'q')
             {
@@ -356,36 +328,33 @@ void chessBoard::genAggressiveMoves(move* mvs)
                 int key = (unsigned)((int)blockers * (int)mag.rookMagics[sqr]
                         ^ (int)(blockers>>32) * (int)(mag.rookMagics[sqr]>>32))
                         >> shift;
-                U64 attackedSqrs = mag.rookAttackArr[sqr][key];
+                attackedSqrs = mag.rookAttackArr[sqr][key];
 
                 blockers = occ & mag.bishopMask[sqr];
                 shift = 32 - mag.BBits[sqr];
                 key = (unsigned)((int)blockers * (int)mag.bishopMagics[sqr]
                         ^ (int)(blockers>>32)*(int)(mag.bishopMagics[sqr]>>32))
                         >> shift;
-                attackedSqrs = mag.bishopAttackArr[sqr][key];
-
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                attackedSqrs |= mag.bishopAttackArr[sqr][key];
             }
             else if(charBoard[sqr] == 'k')
             {
-                U64 attackedSqrs = mag.kingAttackArr[sqr];
-
-                genAgMvsHelper(mvs, sqr, attackedSqrs);
+                attackedSqrs = mag.kingAttackArr[sqr];
             }
             else if(charBoard[sqr] == 'p')
             {
-                //U64 attackedSqrs = mag.bPawnAttackArr[sqr];
-
-                //genAgMvsHelper(mvs, sqr, attackedSqrs);
-
-                // should do the job better as it detects ep move too
                 calcAttackSqrBlackPawn(mvs, sqr);
+            }
+
+            if (attackedSqrs)
+            {
+                attackedSqrs &= ~black_Occ;
+                attackedSqrs &= white_Occ;
+                genMovesHelper(mvs, sqr, attackedSqrs);
             }
         }
     }
 }
-
 
 unsigned long long int chessBoard::genHash()
 {
@@ -499,7 +468,6 @@ void chessBoard::printCharBoard ()
     std::cout << std::endl << std::endl;
 }
 
-
 int chessBoard::squareWithKing(bool sideToFind)
 {
     int ret = -1;
@@ -555,27 +523,7 @@ void chessBoard::calcAttackSqrRook(move* mvs, int sqr)
     else
         attackedSqrs &= ~black_Occ;
 
-    int dist = 0;
-    while (attackedSqrs)
-    {
-        int frwd = mag.bitscanForward(attackedSqrs);
-        attackedSqrs >>= (frwd+1);
-        dist += frwd+1;
-
-        mvs[numOfMvs].from = sqr;
-        mvs[numOfMvs].to = dist-1;
-        mvs[numOfMvs].flag = 0;
-
-        if (charBoard[dist-1] != ' ')
-            mvs[numOfMvs].score = 10 * pValue.lookupValue(charBoard[dist-1]) -
-                                  pValue.lookupValue(charBoard[sqr]);
-
-        numOfMvs++;
-
-        if (frwd == 63)
-            attackedSqrs = 0;
-    }
-
+    genMovesHelper(mvs, sqr, attackedSqrs);
 }
 
 void chessBoard::calcAttackSqrBishop(move* mvs, int sqr)
@@ -599,27 +547,7 @@ void chessBoard::calcAttackSqrBishop(move* mvs, int sqr)
     else
         attackedSqrs &= ~black_Occ;
 
-    int dist = 0;
-    while (attackedSqrs)
-    {
-        int frwd = mag.bitscanForward(attackedSqrs);
-        attackedSqrs >>= frwd+1;
-        dist += frwd+1;
-
-        mvs[numOfMvs].from = sqr;
-        mvs[numOfMvs].to = dist-1;
-        mvs[numOfMvs].flag = 0;
-
-        if (charBoard[dist-1] != ' ')
-            mvs[numOfMvs].score = 10 * pValue.lookupValue(charBoard[dist-1]) -
-                                  pValue.lookupValue(charBoard[sqr]);
-
-        numOfMvs++;
-
-        if (frwd == 63)
-            attackedSqrs = 0;
-    }
-
+    genMovesHelper(mvs, sqr, attackedSqrs);
 }
 
 void chessBoard::calcAttackSqrQueen(move* mvs, int sqr)
@@ -637,26 +565,7 @@ void chessBoard::calcAttackSqrKnight(move* mvs, int sqr)
     else
         attackedSqrs &= ~black_Occ;
 
-    int dist = 0;
-    while (attackedSqrs)
-    {
-        int frwd = mag.bitscanForward(attackedSqrs);
-        attackedSqrs >>= frwd+1;
-        dist += frwd+1;
-
-        mvs[numOfMvs].from = sqr;
-        mvs[numOfMvs].to = dist-1;
-        mvs[numOfMvs].flag = 0;
-
-        if (charBoard[dist-1] != ' ')
-            mvs[numOfMvs].score = 10 * pValue.lookupValue(charBoard[dist-1]) -
-                                  pValue.lookupValue(charBoard[sqr]);
-
-        numOfMvs++;
-
-        if (frwd == 63)
-            attackedSqrs = 0;
-    }
+    genMovesHelper(mvs, sqr, attackedSqrs);
 }
 
 void chessBoard::calcAttackSqrKing(move* mvs, int sqr)
@@ -668,26 +577,7 @@ void chessBoard::calcAttackSqrKing(move* mvs, int sqr)
     else
         attackedSqrs &= ~black_Occ;
 
-    int dist = 0;
-    while (attackedSqrs)
-    {
-        int frwd = mag.bitscanForward(attackedSqrs);
-        attackedSqrs >>= frwd+1;
-        dist += frwd+1;
-
-        mvs[numOfMvs].from = sqr;
-        mvs[numOfMvs].to = dist-1;
-        mvs[numOfMvs].flag = 0;
-
-        if (charBoard[dist-1] != ' ')
-            mvs[numOfMvs].score = 10 * pValue.lookupValue(charBoard[dist-1]) -
-                                  pValue.lookupValue(charBoard[sqr]);
-
-        numOfMvs++;
-
-        if (frwd == 63)
-            attackedSqrs = 0;
-    }
+    genMovesHelper(mvs, sqr, attackedSqrs);
 
     if (side == true)
     {
@@ -1371,4 +1261,3 @@ bool chessBoard::makeMove(move mv){
 
     return ret;
 }
-

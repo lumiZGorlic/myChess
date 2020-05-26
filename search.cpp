@@ -26,7 +26,6 @@ void sortMoves(move* moves, int numOfMvs, int i)
     moves[mxScoreIdx] = tmp;
 }
 
-
 move searchEngine::doSearch(chessBoard& board, int depth)
 {
     assert(depth > 0);
@@ -116,9 +115,6 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
         std::chrono::duration<double> elapsedSeconds = endTime - startTime;
         if (elapsedSeconds.count() >= timeLimit)
         {
-            std::cout << "elapsed seconds " << elapsedSeconds.count()
-                      << std::endl;
-
             throw 0;
         }
     }
@@ -182,7 +178,6 @@ int searchEngine::search(chessBoard& board, int depth, int alpha, int beta)
 
 // TODO seems like there's an explosion here so have to check that
 int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
-
     nodes++;
 
     if ((nodes & 1023) == 0)
@@ -192,9 +187,6 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
         std::chrono::duration<double> elapsedSeconds = endTime - startTime;
         if (elapsedSeconds.count() >= timeLimit)
         {
-            std::cout << "elapsed seconds " << elapsedSeconds.count()
-                      << std::endl;
-
             throw 0;
         }
     }
@@ -210,7 +202,7 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
 
     move moves[MAX_NUM_OF_MVS];
     board.numOfMvs = 0;
-    board.genMoves(moves);
+    board.genAggressiveMoves(moves);
 
     chessBoard boardCpy = board;
     int score = 0;
@@ -219,25 +211,19 @@ int searchEngine::quiesce(chessBoard& board, int alpha, int beta ) {
     // have to add 50 moves rule then ?
     for (int i = 0; i < board.numOfMvs; i++)
     {
-        // quiesce needs to have its own sort procedure and even
-        // better a separate move generation
         sortMoves(moves, board.numOfMvs, i);
 
-        if (board.charBoard[(int)(moves[i].to)] != ' ' || moves[i].flag == EP)
+        if (board.makeMove(moves[i]))
         {
-            if (board.makeMove(moves[i]))
-            {
-                 score = -quiesce(board, -beta, -alpha);
-                 if (score >= beta)
-                     return beta;
-                 if (score > alpha)
-                     alpha = score;
-            }
-
-            board = boardCpy;
+             score = -quiesce(board, -beta, -alpha);
+             if (score >= beta)
+                 return beta;
+             if (score > alpha)
+                 alpha = score;
         }
+
+        board = boardCpy;
     }
 
     return alpha;
 }
-

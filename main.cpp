@@ -25,6 +25,9 @@ int main ()
 {
     signal(SIGSEGV, handler);
 
+    //uciLoop(argc, argv);
+
+    //bratkoKopec();
     //testSearch();
     debugMoveGen();
     //testMoveGenSpeed();

@@ -147,4 +147,3 @@ int eval(const chessBoard& board)
 
     return score;;
 }
-

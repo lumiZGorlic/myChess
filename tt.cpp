@@ -45,4 +45,3 @@ int transpositionTable::probe(U64 hash, int depth, int alpha, int beta)
 
     return NO_TT_ENTRY;
 }
-

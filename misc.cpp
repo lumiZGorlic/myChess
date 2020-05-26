@@ -1,4 +1,3 @@
-
 #include "defs.h"
 #include "misc.h"
 #include "board.h"
@@ -277,4 +276,3 @@ bool readInPosFromFEN(chessBoard& board, std::string pos)
     // TODO should return false if unsuccessful
     return true;
 }
-

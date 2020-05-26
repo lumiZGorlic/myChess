@@ -1,4 +1,3 @@
-
 #ifndef BOARD_H
 #define BOARD_H
 
@@ -91,10 +90,10 @@ struct chessBoard {
     void calcMoveSqrBlackPawn(move* mvs, int sqr);
     void calcMoveSqrWhitePawn(move* mvs, int sqr);
 
-    void genAgMvsHelper(move* mvs, int sqr, U64 attackedSqrs);
+    void genMovesHelper(move* mvs, int sqr, U64 attackedSqrs);
     void genAggressiveMoves(move* mvs);
-
     void genMoves(move* mvs);
+
     bool makeMove(move mv);
 
     int squareWithKing(bool sideToFind);

@@ -1,4 +1,3 @@
-
 #ifndef MAGICS_H
 #define MAGICS_H
 

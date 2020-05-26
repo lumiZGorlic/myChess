@@ -1,4 +1,3 @@
-
 #include "defs.h"
 #include "testUtils.h"
 #include "board.h"
@@ -7,6 +6,146 @@
 
 #include <vector>
 #include <iostream>
+#include <sstream>
+
+
+std::string sqrMapIntToStr[] = {
+   "A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1",
+   "A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2",
+   "A3", "B3", "C3", "D3", "E3", "F3", "G3", "H3",
+   "A4", "B4", "C4", "D4", "E4", "F4", "G4", "H4",
+   "A5", "B5", "C5", "D5", "E5", "F5", "G5", "H5",
+   "A6", "B6", "C6", "D6", "E6", "F6", "G6", "H6",
+   "A7", "B7", "C7", "D7", "E7", "F7", "G7", "H7",
+   "A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8"
+};
+
+
+void uciLoop(int argc, char* argv[])
+{
+    std::string token, cmd;
+
+    // not sure why needed
+    for (int i = 1; i < argc; ++i)
+        cmd += std::string(argv[i]) + " ";
+
+    do {
+        if (argc == 1 && !getline(std::cin, cmd))
+            cmd = "quit";
+
+        std::istringstream is(cmd);
+
+        token.clear();
+        is >> std::skipws >> token;
+
+        if (token == "quit" || token == "stop")
+            return;
+
+        else if (token == "go")
+            ;//go(...);
+
+        else if (token == "position")
+            ;//position(...);
+
+        else if (token == "isready")
+            std::cout << "readyok" << std::endl;
+
+        else
+            std::cout << "uknown command " << cmd << std::endl;
+
+    } while (token != "quit" && argc == 1);
+}
+
+void bratkoKopec()
+{
+    std::string sqrMapIntToStr2[] = {
+       "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
+       "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+       "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+       "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+       "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+       "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+       "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+       "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
+    };
+
+    std::string positions[] = {
+        "rnbqkb1r/p3pppp/1p6/2ppP3/3N4/2P5/PPP1QPPP/R1B1KB1R w KQkq -",
+        "3r1k2/4npp1/1ppr3p/p6P/P2PPPP1/1NR5/5K2/2R5 w - -",
+        "2q1rr1k/3bbnnp/p2p1pp1/2pPp3/PpP1P1P1/1P2BNNP/2BQ1PRK/7R b - -",
+        "rnbqkb1r/p3pppp/1p6/2ppP3/3N4/2P5/PPP1QPPP/R1B1KB1R w KQkq -",
+        "r1b2rk1/2q1b1pp/p2ppn2/1p6/3QP3/1BN1B3/PPP3PP/R4RK1 w - -",
+        "2r3k1/pppR1pp1/4p3/4P1P1/5P2/1P4K1/P1P5/8 w - -",
+        "1nk1r1r1/pp2n1pp/4p3/q2pPp1N/b1pP1P2/B1P2R2/2P1B1PP/R2Q2K1 w - -",
+        "4b3/p3kp2/6p1/3pP2p/2pP1P2/4K1P1/P3N2P/8 w - -",
+        "2kr1bnr/pbpq4/2n1pp2/3p3p/3P1P1B/2N2N1Q/PPP3PP/2KR1B1R w - -",
+        "3rr1k1/pp3pp1/1qn2np1/8/3p4/PP1R1P2/2P1NQPP/R1B3K1 b - -",
+        "2r1nrk1/p2q1ppp/bp1p4/n1pPp3/P1P1P3/2PBB1N1/4QPPP/R4RK1 w - -",
+        "r3r1k1/ppqb1ppp/8/4p1NQ/8/2P5/PP3PPP/R3R1K1 b - -",
+        "r2q1rk1/4bppp/p2p4/2pP4/3pP3/3Q4/PP1B1PPP/R3R1K1 w - -",
+        "rnb2r1k/pp2p2p/2pp2p1/q2P1p2/8/1Pb2NP1/PB2PPBP/R2Q1RK1 w - -",
+        "2r3k1/1p2q1pp/2b1pr2/p1pp4/6Q1/1P1PP1R1/P1PN2PP/5RK1 w - -",
+        "r1bqkb1r/4npp1/p1p4p/1p1pP1B1/8/1B6/PPPN1PPP/R2Q1RK1 w kq -",
+        "r2q1rk1/1ppnbppp/p2p1nb1/3Pp3/2P1P1P1/2N2N1P/PPB1QP2/R1B2RK1 b - -",
+        "r1bq1rk1/pp2ppbp/2np2p1/2n5/P3PP2/N1P2N2/1PB3PP/R1B1QRK1 b - -",
+        "3rr3/2pq2pk/p2p1pnp/8/2QBPP2/1P6/P5PP/4RRK1 b - -",
+        "r4k2/pb2bp1r/1p1qp2p/3pNp2/3P1P2/2N3P1/PPP1Q2P/2KRR3 w - -",
+        "3rn2k/ppb2rpp/2ppqp2/5N2/2P1P3/1P5Q/PB3PPP/3RR1K1 w - -",
+        "2r2rk1/1bqnbpp1/1p1ppn1p/pP6/N1P1P3/P2B1N1P/1B2QPP1/R2R2K1 b - -",
+        "r1bqk2r/pp2bppp/2p5/3pP3/P2Q1P2/2N1B3/1PP3PP/R4RK1 b kq -",
+        "r2qnrnk/p2b2b1/1p1p2pp/2pPpp2/1PP1P3/PRNBB3/3QNPPP/5RK1 w - -"
+    };
+
+    std::string bestMoves[] = {
+        "d6 d1",
+        "d4 d5",
+        "f6 f5",
+        "e5 e6",
+        "c3 d5",
+        "g5 g6",
+        "h5 f6",
+        "f4 f5",
+        "f4 f5",
+        "c6 e5",
+        "f2 f4",
+        "d7 f5",
+        "b2 b4",
+        "d1 d2",
+        "g4 g7",
+        "d2 e4",
+        "h7 h5",
+        "c5 b3",
+        "e8 e4",
+        "g3 g4",
+        "f5 h6",
+        "b7 e4",
+        "f7 f6",
+        "f2 f4"
+    };
+
+    for (int i = 0; i < sizeof(bestMoves)/sizeof(bestMoves[0]); i++){
+        chessBoard board;
+        searchEngine searchEn;
+        move m(0,0,0);
+
+        readInPosFromFEN (board, positions[i]);
+        board.populateOccup();
+        board.populateCharBoard();
+        board.calcHash();
+
+        int searchDepth = 10;
+
+        //board.printCharBoard();
+
+        m = searchEn.doSearch(board, searchDepth);
+
+        std::cout << "moves found and best are: "
+              << sqrMapIntToStr2[(int) m.from] << " "
+              << sqrMapIntToStr2[(int) m.to]
+              << "  /  "
+              << bestMoves[i] << std::endl;
+    }
+}
 
 U64 perft(chessBoard& board, int depth)
 {
@@ -125,17 +264,6 @@ void debugMoveGen () {
 }
 
 
-std::string sqrMapIntToStr[] = {
-   "A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1",
-   "A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2",
-   "A3", "B3", "C3", "D3", "E3", "F3", "G3", "H3",
-   "A4", "B4", "C4", "D4", "E4", "F4", "G4", "H4",
-   "A5", "B5", "C5", "D5", "E5", "F5", "G5", "H5",
-   "A6", "B6", "C6", "D6", "E6", "F6", "G6", "H6",
-   "A7", "B7", "C7", "D7", "E7", "F7", "G7", "H7",
-   "A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8"
-};
-
 // TODO add a routine to show the mapping numbers to squares or ideally ask
 // user for a field and translate into int
 
@@ -176,8 +304,6 @@ void printMove(const move& m)
               << sqrMapIntToStr[(int) m.to]  << std::endl;
 
     // TODO castling and promotion handling
-
-    std::cout << std::endl << std::endl;
 }
 
 int pickSearchDepth()
@@ -190,7 +316,7 @@ int pickSearchDepth()
         std::cout << "Choose depth search - a number between 1-6" << std::endl;
         std::cin >> searchDepth;
 
-        if (searchDepth >= 1 && searchDepth <= 6)
+        if (searchDepth >= 1 && searchDepth <= 10)
             pass = true;
     }
 
@@ -563,5 +689,3 @@ void testSearch(){
         printMove(m);
     }
 }
-
-

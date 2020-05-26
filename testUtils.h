@@ -1,4 +1,3 @@
-
 #ifndef TESTUTILS_H
 #define TESTUTILS_H
 
@@ -6,6 +5,10 @@
 #include "board.h"
 
 #include <vector>
+
+
+void uciLoop(int argc, char* argv[]);
+
 
 struct debugItem {
     std::string pos;
@@ -32,6 +35,7 @@ void solveChessPuzzle(std::string pos);
 void engineVsEngine();
 void playChess ();
 void testSearch();
+void bratkoKopec();
 
 
 #endif

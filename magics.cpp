@@ -1212,4 +1212,3 @@ void magics::populBishop()
 }
 
 // calculate rook and bishop masks section end
-
