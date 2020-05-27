@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <iostream>
-#include <sstream>
+#include <algorithm>
 
 
 std::string sqrMapIntToStr[] = {
@@ -20,41 +20,6 @@ std::string sqrMapIntToStr[] = {
    "A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8"
 };
 
-
-void uciLoop(int argc, char* argv[])
-{
-    std::string token, cmd;
-
-    // not sure why needed
-    for (int i = 1; i < argc; ++i)
-        cmd += std::string(argv[i]) + " ";
-
-    do {
-        if (argc == 1 && !getline(std::cin, cmd))
-            cmd = "quit";
-
-        std::istringstream is(cmd);
-
-        token.clear();
-        is >> std::skipws >> token;
-
-        if (token == "quit" || token == "stop")
-            return;
-
-        else if (token == "go")
-            ;//go(...);
-
-        else if (token == "position")
-            ;//position(...);
-
-        else if (token == "isready")
-            std::cout << "readyok" << std::endl;
-
-        else
-            std::cout << "uknown command " << cmd << std::endl;
-
-    } while (token != "quit" && argc == 1);
-}
 
 void bratkoKopec()
 {
@@ -313,7 +278,7 @@ int pickSearchDepth()
 
     while (!pass)
     {
-        std::cout << "Choose depth search - a number between 1-6" << std::endl;
+        std::cout << "Choose depth search - a number between 1-10" << std::endl;
         std::cin >> searchDepth;
 
         if (searchDepth >= 1 && searchDepth <= 10)

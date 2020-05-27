@@ -8,7 +8,6 @@
 #include <chrono>
 #include <assert.h>
 
-
 void sortMoves(move* moves, int numOfMvs, int i)
 {
     int mxScore = moves[i].score;
@@ -26,13 +25,20 @@ void sortMoves(move* moves, int numOfMvs, int i)
     moves[mxScoreIdx] = tmp;
 }
 
+searchEngine::searchEngine(double timeLimit) :
+    // TODO read about this startTime class
+    startTime(),
+    timeLimit(timeLimit),
+    nodes(0)
+{}
+
 move searchEngine::doSearch(chessBoard& board, int depth)
 {
     assert(depth > 0);
 
     startTime = std::chrono::system_clock::now();
-    timeLimit = 300.0;
     nodes = 0;
+    // timeLimit should be initialized by now
 
     move ret(0, 0, 0);
     chessBoard boardCpy = board;

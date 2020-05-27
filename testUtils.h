@@ -7,7 +7,7 @@
 #include <vector>
 
 
-void uciLoop(int argc, char* argv[]);
+void uciLoop();
 
 
 struct debugItem {

@@ -2,9 +2,11 @@
 #include "board.h"
 #include "search.h"
 #include "testUtils.h"
+#include "uci.h"
 
 #include <execinfo.h>
 #include <unistd.h>
+#include <signal.h>
 
 
 void handler(int sig) {
@@ -25,11 +27,11 @@ int main ()
 {
     signal(SIGSEGV, handler);
 
-    //uciLoop(argc, argv);
+    uciLoop();
 
     //bratkoKopec();
     //testSearch();
-    debugMoveGen();
+    //debugMoveGen();
     //testMoveGenSpeed();
     //playDummyGame();
     //engineVsEngine();
