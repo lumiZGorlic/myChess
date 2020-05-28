@@ -19,6 +19,45 @@ std::string mp[] = {
    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
 };
 
+
+move tokenToMove(const chessBoard& board, const std::string& token){
+    // assert token's size etc
+
+    std::string from = token.substr(0,2), to = token.substr(2,2);
+    int fromI, toI;
+    char flag = 0;
+
+    for (int i = 0; i < sizeof(mp)/sizeof(mp[0]); i++)
+        if (from == mp[i]) fromI = i;
+        else if (to == mp[i]) toI = i;
+
+    if(tolower(board.charBoard[fromI]) == 'k' && abs(int(fromI)-int(toI)) == 2)
+        flag = CASTLING;
+
+    else if (tolower(board.charBoard[fromI]) == 'p' && toI == board.ep)
+        flag = EP;
+
+    else if (tolower(board.charBoard[fromI]) == 'p' && (toI > 8 || toI < 55))
+    {
+        switch (token[4]) {
+            case 'q':
+                flag = PROMOTE_Q;
+                break;
+            case 'r':
+                flag = PROMOTE_R;
+                break;
+            case 'b':
+                flag = PROMOTE_B;
+                break;
+            case 'n':
+                flag = PROMOTE_N;
+            break;
+        }
+    }
+
+    return move(fromI, toI, flag);
+}
+
 void go(chessBoard& board, std::istringstream& is){
 
     // TODO here we're setting fixed time limit 10 secs per search
@@ -27,7 +66,23 @@ void go(chessBoard& board, std::istringstream& is){
     searchEngine searchEn(10.0);
     move m = searchEn.doSearch(board, 25);
 
-    std::string moveS = mp[(int)m.from] + mp[(int)m.to];
+    std::string flag("");
+    switch (m.flag) {
+        case PROMOTE_Q:
+            flag = "q";
+            break;
+        case PROMOTE_R:
+            flag = "r";
+            break;
+        case PROMOTE_B:
+            flag = "b";
+            break;
+        case PROMOTE_N:
+            flag = "n";
+            break;
+    }
+
+    std::string moveS = mp[(int)m.from] + mp[(int)m.to] + flag;
     std::cout << "bestmove " << moveS << std::endl;
 }
 
@@ -58,14 +113,7 @@ void position(chessBoard& board, std::istringstream& is){
 
     while (is >> token)
     {
-        std::string from = token.substr(0,2), to = token.substr(2,2);
-        int fromI, toI;
-
-        for (int i = 0; i < sizeof(mp)/sizeof(mp[0]); i++)
-            if (from == mp[i]) fromI = i;
-            else if (to == mp[i]) toI = i;
-
-        move m(fromI, toI, 0);
+        move m = tokenToMove(board, token);
         board.makeMove(m);
     }
 }

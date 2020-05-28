@@ -5,6 +5,7 @@
 
 #include <sstream>
 
+move tokenToMove(const chessBoard& board, const std::string& token);
 void go(chessBoard& board, std::istringstream& is);
 void position(chessBoard& board, std::istringstream& is);
 void uciLoop();
