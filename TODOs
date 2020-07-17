@@ -1,11 +1,8 @@
-- test related stuff in a separate file
-
-- add headers, separation, tidy up etc
-
 - add logs to make debugging possible
 
 - test against TSCP in terms of strength, speed (move generation) etc.
   look at https://chess.stackexchange.com/questions/12790/how-to-measure-strength-of-my-own-chess-engine
+  use Arena and make tscp uci compatible so it can be used with Arena
 
 - analyse and improve search by adding some techniques and also evaluation
 
@@ -13,9 +10,13 @@
 
 - end game, opening book
 
-- add support for GUI
+- improve evaluation function
+
+- improve uci support
 
 - look at portability, variables, sizes etc
 
 - add more comments here and there
+
+- resolve TODOs
 
