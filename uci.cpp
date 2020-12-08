@@ -60,10 +60,30 @@ move tokenToMove(const chessBoard& board, const std::string& token){
 
 void go(chessBoard& board, std::istringstream& is){
 
-    // TODO here we're setting fixed time limit 10 secs per search
-    // need to write sth smarter, read wtime, btime from 'is'
-    // and calculate based on that
-    searchEngine searchEn(10.0);
+    std::string token;
+
+    // here we're setting fixed time limit 10 secs per search
+    //searchEngine searchEn(10.0);
+
+    // for testing against tscp
+    // bit below added so it behaves like tscp. Also added logging to tscp ('logs.txt')
+    // main.c file for debugging etc. And disabled opening book for tscp.
+
+
+    // time left for each side, used int but should be sth smarter
+    int wTime = 1000, bTime = 1000;
+
+    while (is >> token)
+        if (token == "wtime")
+            is >> wTime;
+        else if (token == "btime")
+            is >> bTime;
+
+    double timeLeft = (board.side) ? wTime : bTime;
+    timeLeft /= 30.0;
+    timeLeft /= 1000.0;
+
+    searchEngine searchEn(timeLeft);
     move m = searchEn.doSearch(board, 25);
 
     std::string flag("");
