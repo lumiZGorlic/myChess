@@ -6,8 +6,8 @@
 
 #include <vector>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
-
 
 std::string sqrMapIntToStr[] = {
    "A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1",
@@ -274,18 +274,17 @@ void printMove(const move& m)
 int pickSearchDepth()
 {
     int searchDepth = 0;
-    bool pass = false;
-
-    while (!pass)
+    std::string input;
+    while (1)
     {
         std::cout << "Choose depth search - a number between 1-10" << std::endl;
-        std::cin >> searchDepth;
-
+        getline(std::cin, input);
+        std::stringstream(input) >> searchDepth;
         if (searchDepth >= 1 && searchDepth <= 10)
-            pass = true;
+            return searchDepth;
     }
 
-    return searchDepth;
+    return 0;
 }
 
 move getInput()
@@ -303,13 +302,29 @@ move getInput()
                   << "For example for the initial position E2 E4 is a valid"
                   << " move. "
                   << std::endl
-                  << "For castling move, enter king's origin and target"
+                  << "For castling move, enter king's origin and target "
                   << "squares e.g. E1 G1."
                   << std::endl
                   << std::endl
                   << std::endl;
 
-        std::cin >> strFrom >> strTo;
+        std::string input;
+        getline(std::cin, input);
+
+        if (
+            (input.size() < 5) ||
+            (input[2] != ' ')  ||
+            !(input[0] >= 'a' && input[0] <= 'h') ||
+            !(input[3] >= 'a' && input[3] <= 'h') ||
+            !(input[1] >= '1' && input[1] <= '8') ||
+            !(input[4] >= '1' && input[4] <= '8')
+        )
+        {
+            continue;
+        }
+
+       strFrom = input.substr(0, 2);
+       strTo = input.substr(3, 2);
 
         // if user entered lower case e.g. e2 e4 we have to convert it to
         // upper case characters
@@ -547,6 +562,7 @@ void engineVsEngine()
 
 }
 
+
 // TODO user should be able to pick side
 void playChess ()
 {
@@ -601,8 +617,9 @@ void playChess ()
                         m.flag = promotionPickNewPiece();
 
                     chessBoard boardCpy = board;
-                    if (board.makeMove(m))
+                    if (board.makeMove(m)){
                         pass = true;
+                    }
                     else
                         board = boardCpy;
                 }

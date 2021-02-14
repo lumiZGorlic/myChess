@@ -27,7 +27,7 @@ int main ()
 {
     signal(SIGSEGV, handler);
 
-    uciLoop();
+    //uciLoop();
 
     //bratkoKopec();
     //testSearch();
@@ -35,7 +35,7 @@ int main ()
     //testMoveGenSpeed();
     //playDummyGame();
     //engineVsEngine();
-    //playChess();
+    playChess();
     //perft2();
 
 
