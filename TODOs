@@ -21,3 +21,5 @@
 - resolve TODOs
 
 - conventions e.g. name of a class should start with a capital letter e.g. 'move'
+
+- make a separate build folder, change makefile etc

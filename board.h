@@ -109,5 +109,13 @@ extern unsigned long long int epHash[64];
 
 extern pieceValue pValue;
 
+// opening book stuff
+extern std::vector<std::string> openings;
+extern std::string playedMoves;
+
+void addToPlayedMoves(const move& m);
+void openBook();
+move tryBook();
+
 
 #endif

@@ -8,6 +8,7 @@
 #include <bitset>
 #include <random>
 #include <iostream>
+#include <fstream>
 
 // TODO: should int be used for square or some other type
 // TODO: int should be unsigned or not ? why ?
@@ -24,6 +25,10 @@ pieceValue pValue;
 unsigned long long int squaresHash[64][6][2];
 unsigned long long int sideHash;
 unsigned long long int epHash[64];
+
+// opening book stuff
+std::vector<std::string> openings;
+std::string playedMoves;
 
 
 chessBoard::chessBoard() :
@@ -1260,4 +1265,66 @@ bool chessBoard::makeMove(move mv){
     calcHash();
 
     return ret;
+}
+
+// opening book stuff
+
+std::string intToStr[] = {
+   "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
+   "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+   "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+   "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+   "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+   "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+   "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+   "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
+};
+
+void addToPlayedMoves(const move& m){
+    std::string ms = intToStr[(int)m.from] + intToStr[(int)m.to];
+
+    if (!playedMoves.empty()) playedMoves += ' ';
+    playedMoves += ms;
+}
+
+void openBook(){
+    std::ifstream f("book.txt");
+    std::string line;
+
+    while (std::getline(f, line)){
+        if (line.substr(0,2) != "--")
+            openings.push_back(line);
+    }
+}
+
+move tryBook(){
+    std::vector<std::string> possibleMoves;
+
+    int sz=playedMoves.size();
+
+    for (std::string o: openings){
+        if (o.size() > sz && o.substr(0, sz) == playedMoves){
+            if (!sz)
+                possibleMoves.push_back(o.substr(sz, 4));
+            else
+                possibleMoves.push_back(o.substr(sz+1, 4));
+        }
+    }
+
+    sz = possibleMoves.size();
+    // return invalid move
+    if (!sz) return move(-1, -1, 0);
+
+    srand((unsigned)time(0));
+    int randomIdx = (rand()%sz);
+    std::string ms = possibleMoves[randomIdx];
+
+    std::string from = ms.substr(0,2), to = ms.substr(2,2);
+    int fromI = -1, toI = -1;
+
+    for (int i = 0; i < sizeof(intToStr)/sizeof(intToStr[0]); i++)
+        if (from == intToStr[i]) fromI = i;
+        else if (to == intToStr[i]) toI = i;
+
+    return move(fromI, toI, 0);
 }
