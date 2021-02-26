@@ -1,0 +1,34 @@
+--https://www.thesprucecrafts.com/most-common-chess-openings-611517
+--
+--Ruy Lopez
+e2e4 e7e5 g1f3 b8c6 f1b5
+--
+--Italian Game
+e2e4 e7e5 g1f3 b8c6 f1c4
+--
+--Sicilian Defense
+e2e4 c7c5
+--
+--French Defense
+e2e4 e7e6
+--
+--Caro-Kann Defense
+e2e4 c7c6
+--
+--Pirc Defense
+e2e4 d7d6
+--
+--Queens Gambit
+d2d4 d7d5 c2c4
+--
+--Kings Gambit
+e2e4 e7e5 f2f4
+--
+--Indian Defense
+d2d4 g8f6
+--
+--English Opening
+c2c4
+--
+--Reti Opening
+g1f3
