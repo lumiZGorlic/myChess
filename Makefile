@@ -1,3 +1,4 @@
+OBJDIR = obj
 
 # Declaration of variables
 CC = g++
@@ -7,15 +8,15 @@ OBJ_FLAGS = -g -rdynamic
 # File names
 EXEC = myChess
 SOURCES = $(wildcard *.cpp)
-OBJECTS = $(SOURCES:.cpp=.o)
+OBJECTS = $(addprefix obj/,$(notdir $(SOURCES:.cpp=.o)))
 
 # Main target
 $(EXEC): $(OBJECTS)
 	$(CC) $(OBJ_FLAGS) $(OBJECTS) -o $(EXEC)
 
 # To obtain object files
-%.o: %.cpp
-	$(CC) -c $(CC_FLAGS) $< -o $@
+$(OBJECTS): $(OBJDIR)/%.o: %.cpp
+	$(CC) $(CC_FLAGS) -c $< -o $@
 
 # To remove generated files
 clean:
