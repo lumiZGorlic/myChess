@@ -2,7 +2,7 @@ OBJDIR = obj
 
 # Declaration of variables
 CC = g++
-CC_FLAGS = -std=c++11
+CC_FLAGS = -Wall -std=c++11
 OBJ_FLAGS = -g -rdynamic
 
 # File names

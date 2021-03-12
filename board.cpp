@@ -1289,6 +1289,12 @@ void addToPlayedMoves(const move& m){
 
 void openBook(){
     std::ifstream f("book.txt");
+
+    if (!f.is_open()) {
+        std::cout << "Unable to open file book.txt." << std::endl;
+        return;
+    }
+
     std::string line;
 
     while (std::getline(f, line)){

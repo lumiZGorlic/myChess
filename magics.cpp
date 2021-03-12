@@ -56,8 +56,9 @@ void magics::saveInFile()
         for (int i = A1; i <= H8; i++)
             magicFile << bishopMagics[i] << std::endl;
     }
-    else
-        std::cout << "Unable to open file" << std::endl;
+    else {
+        std::cout << "Unable to open file magics.txt to save" << std::endl;
+    }
 }
 
 
@@ -76,9 +77,11 @@ void magics::readFromFile()
         for (int sqr = A1; sqr <= H8; sqr++)
             magicFile >> bishopMagics[sqr];
     }
-    else
-        std::cout << "Unable to open file" << std::endl;
-
+    else {
+        std::cout << "Unable to open file magics.txt. Magics move"
+                  << " generation will probably not work." << std::endl;
+        return;
+    }
 
     for (int sqr = A1; sqr <= H8; sqr++)
     {
