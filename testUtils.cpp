@@ -88,7 +88,7 @@ void bratkoKopec()
         "f2 f4"
     };
 
-    for (int i = 0; i < sizeof(bestMoves)/sizeof(bestMoves[0]); i++){
+    for (int i = 0, max = sizeof(bestMoves)/sizeof(bestMoves[0]); i < max; i++){
         chessBoard board;
         searchEngine searchEn;
         move m(0,0,0);

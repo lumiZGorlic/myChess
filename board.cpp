@@ -1306,7 +1306,7 @@ void openBook(){
 move tryBook(){
     std::vector<std::string> possibleMoves;
 
-    int sz=playedMoves.size();
+    auto sz=playedMoves.size();
 
     for (std::string o: openings){
         if (o.size() > sz && o.substr(0, sz) == playedMoves){
@@ -1328,7 +1328,7 @@ move tryBook(){
     std::string from = ms.substr(0,2), to = ms.substr(2,2);
     int fromI = -1, toI = -1;
 
-    for (int i = 0; i < sizeof(intToStr)/sizeof(intToStr[0]); i++)
+    for (int i = 0, max = sizeof(intToStr)/sizeof(intToStr[0]); i < max; i++)
         if (from == intToStr[i]) fromI = i;
         else if (to == intToStr[i]) toI = i;
 

@@ -27,7 +27,7 @@ move tokenToMove(const chessBoard& board, const std::string& token){
     int fromI, toI;
     char flag = 0;
 
-    for (int i = 0; i < sizeof(mp)/sizeof(mp[0]); i++)
+    for (int i = 0, max = sizeof(mp)/sizeof(mp[0]); i < max; i++)
         if (from == mp[i]) fromI = i;
         else if (to == mp[i]) toI = i;
 
