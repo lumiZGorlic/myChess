@@ -3,28 +3,8 @@
 
 #include "defs.h"
 
-#include <map>
 #include <vector>
 #include <bitset>
-
-struct pieceValue {
-
-    std::map<char,int> values;
-
-    int lookupValue(char p){
-        // assert
-        return values[p];
-    }
-
-    pieceValue() {
-        values['R']=5; values['r']=5;
-        values['B']=3; values['b']=3;
-        values['N']=3; values['n']=3;
-        values['Q']=9; values['q']=9;
-        values['P']=1; values['p']=1;
-        values['K']=10; values['k']=10;
-    }
-};
 
 
 // TODO: if use char here then need to convert char to int and vice-versa
@@ -107,7 +87,8 @@ extern unsigned long long int squaresHash[64][6][2];
 extern unsigned long long int sideHash;
 extern unsigned long long int epHash[64];
 
-extern pieceValue pValue;
+extern int pieceToValue[128];
+void initPieceToValue();
 
 // opening book stuff
 extern std::vector<std::string> openings;

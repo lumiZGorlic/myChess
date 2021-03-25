@@ -27,15 +27,18 @@ int main ()
 {
     signal(SIGSEGV, handler);
 
+    // TODO not proud of the array and how i initialise it
+    initPieceToValue();
+
     //uciLoop();
 
     //bratkoKopec();
     //testSearch();
     //debugMoveGen();
-    //testMoveGenSpeed();
+    testMoveGenSpeed();
     //playDummyGame();
     //engineVsEngine();
-    playChess();
+    //playChess();
     //perft2();
 
 

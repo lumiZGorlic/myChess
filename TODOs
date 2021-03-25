@@ -1,3 +1,8 @@
+
+- i change map to unordered_map in header and it doesn't get re-compiled, investigate that
+
+- try to use a U64 instead of move and see if speed better
+
 - add logs to make debugging possible
 
 - test against TSCP in terms of strength, speed (move generation) etc.
@@ -8,7 +13,7 @@
 
 - improve quiesce
 
-- end game, opening book
+- end game, improve opening book
 
 - improve evaluation function
 
@@ -16,10 +21,5 @@
 
 - look at portability, variables, sizes etc
 
-- add more comments here and there
-
-- resolve TODOs
-
 - conventions e.g. name of a class should start with a capital letter e.g. 'move'
 
-- make a separate build folder, change makefile etc

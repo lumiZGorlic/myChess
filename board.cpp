@@ -3,7 +3,6 @@
 #include "magics.h"
 #include "misc.h"
 
-#include <map>
 #include <vector>
 #include <bitset>
 #include <random>
@@ -20,7 +19,18 @@
 // TODO investigate why this needs to be global etc
 std::mt19937 mt(01234567);
 
-pieceValue pValue;
+
+int pieceToValue[128] = {0};
+
+void initPieceToValue(){
+    pieceToValue['R']=5; pieceToValue['r']=5;
+    pieceToValue['B']=3; pieceToValue['b']=3;
+    pieceToValue['N']=3; pieceToValue['n']=3;
+    pieceToValue['Q']=9; pieceToValue['q']=9;
+    pieceToValue['P']=1; pieceToValue['p']=1;
+    pieceToValue['K']=10; pieceToValue['k']=10;
+}
+
 
 unsigned long long int squaresHash[64][6][2];
 unsigned long long int sideHash;
@@ -217,8 +227,8 @@ void chessBoard::genMovesHelper(move* mvs, int sqr, U64 attackedSqrs)
         mvs[numOfMvs].flag = 0;
 
         if (charBoard[dist-1] != ' ')
-            mvs[numOfMvs].score = 10 * pValue.lookupValue(charBoard[dist-1]) -
-                                  pValue.lookupValue(charBoard[sqr]);
+            mvs[numOfMvs].score = 10 * pieceToValue[charBoard[dist-1]] -
+                                       pieceToValue[charBoard[sqr]];
 
         numOfMvs++;
 
@@ -675,9 +685,7 @@ void chessBoard::calcAttackSqrWhitePawn(move* mvs, int sqr)
                 mvs[numOfMvs].flag = i;
 
                 if (charBoard[dist-1] != ' ')
-                    mvs[numOfMvs].score = 10 *
-                                          pValue.lookupValue(charBoard[dist-1])
-                                          - pValue.lookupValue(charBoard[sqr]);
+                    mvs[numOfMvs].score = 10*pieceToValue[charBoard[dist-1]] -1;
 
                 numOfMvs++;
             }
@@ -689,9 +697,7 @@ void chessBoard::calcAttackSqrWhitePawn(move* mvs, int sqr)
             mvs[numOfMvs].flag = 0;
 
             if (charBoard[dist-1] != ' ')
-                mvs[numOfMvs].score = 10 *
-                                      pValue.lookupValue(charBoard[dist-1])
-                                      - pValue.lookupValue(charBoard[sqr]);
+                mvs[numOfMvs].score = 10*pieceToValue[charBoard[dist-1]] - 1;
 
             numOfMvs++;
         }
@@ -736,9 +742,7 @@ void chessBoard::calcAttackSqrBlackPawn(move* mvs, int sqr)
                 mvs[numOfMvs].flag = i;
 
                 if (charBoard[dist-1] != ' ')
-                    mvs[numOfMvs].score = 10 *
-                                          pValue.lookupValue(charBoard[dist-1])
-                                          - pValue.lookupValue(charBoard[sqr]);
+                    mvs[numOfMvs].score = 10*pieceToValue[charBoard[dist-1]] -1;
 
                 numOfMvs++;
             }
@@ -750,9 +754,7 @@ void chessBoard::calcAttackSqrBlackPawn(move* mvs, int sqr)
             mvs[numOfMvs].flag = 0;
 
             if (charBoard[dist-1] != ' ')
-                mvs[numOfMvs].score = 10 *
-                                      pValue.lookupValue(charBoard[dist-1])
-                                      - pValue.lookupValue(charBoard[sqr]);
+                mvs[numOfMvs].score = 10*pieceToValue[charBoard[dist-1]] - 1;
 
             numOfMvs++;
         }
