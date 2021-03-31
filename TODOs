@@ -1,4 +1,6 @@
 
+- look at uint64_t, re-test magics generation, re-run perf
+
 - i change map to unordered_map in header and it doesn't get re-compiled, investigate that
 
 - try to use a U64 instead of move and see if speed better

@@ -483,7 +483,7 @@ void magics::genOccForLinesNDiags() {
         // diagonal west-east the square belongs to
         std::vector<int> vTmp = v1[mapWE[mapReal[sqr]]];
         int N = vTmp.size();
-        int maxVal = pow(2, N);
+        U64 maxVal = pow(2, N);
 
         // go through all the permutations that the diagonal can have
         // and apply the mapping
@@ -502,7 +502,7 @@ void magics::genOccForLinesNDiags() {
             // diagonal east-west the square belongs to
             std::vector<int> vTmp2 = v2[mapEW[mapReal[sqr]]];
             int N2 = vTmp2.size();
-            int maxVal2 = pow(2, N2);
+            U64 maxVal2 = pow(2, N2);
 
             // go through all the permutations that the diagonal can have
             // and apply the mapping
