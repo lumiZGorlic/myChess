@@ -9,6 +9,33 @@
 #include <sstream>
 #include <algorithm>
 
+// ----tscp stuff block start----------------------------------------------
+
+// stuff below copied over from tscp so that i can compare
+// performance against tscp better
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <signal.h>
+
+//get_ms() returns the milliseconds elapsed since midnight,
+//   January 1, 1970.
+
+#include <sys/timeb.h>
+bool ftime_ok = false;  // does ftime return milliseconds?
+int get_ms()
+{
+	struct timeb timebuffer;
+	ftime(&timebuffer);
+	if (timebuffer.millitm != 0)
+		ftime_ok = true;
+	return (timebuffer.time * 1000) + timebuffer.millitm;
+}
+
+// ---tscp stuff block end-------------------------------------------------
+
+
 std::string sqrMapIntToStr[] = {
    "A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1",
    "A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2",
@@ -429,6 +456,8 @@ void testMoveGenSpeed()
 
     move moves[MAX_NUM_OF_MVS];
 
+    //int st = get_ms();
+
     clock_t begin = clock();
     for (int j = 0; j<1000000; j++)
     {
@@ -440,6 +469,9 @@ void testMoveGenSpeed()
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     std::cout << "spent " << elapsed_secs << std::endl;
     std::cout << "number of moves  " << board.numOfMvs << std::endl;
+
+    //int t = get_ms() - st;
+    //printf("Time: %d ms\n", t);
 }
 
 void playDummyGame()
