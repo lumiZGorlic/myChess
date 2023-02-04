@@ -48,6 +48,87 @@ std::string sqrMapIntToStr[] = {
 };
 
 
+
+void solveProblems()
+{
+    std::string sqrMapIntToStr2[] = {
+       "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1",
+       "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+       "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+       "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+       "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+       "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+       "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+       "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
+    };
+
+    // generates from puzzles.txt using getFENsAndMoves.py
+
+    std::string positions[] = {
+                "r2qkb1r/pp2nppp/3p4/2pNN1B1/2BnP3/3P4/PPP2PPP/R2bK2R w KQkq -",
+                "1rb4r/pkPp3p/1b1P3n/1Q6/N3Pp2/8/P1P3PP/7K w - -",
+                "4kb1r/p2n1ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k -",
+                "r1b2k1r/ppp1bppp/8/1B1Q4/5q2/2P5/PPP2PPP/R3R1K1 w - -",
+                "5rkr/pp2Rp2/1b1p1Pb1/3P2Q1/2n3P1/2p5/P4P2/4R1K1 w - -",
+                "1r1kr3/Nbppn1pp/1b6/8/6Q1/3B1P2/Pq3P1P/3RR1K1 w - -",
+                "5rk1/1p1q2bp/p2pN1p1/2pP2Bn/2P3P1/1P6/P4QKP/5R2 w - -",
+                "r1nk3r/2b2ppp/p3b3/3NN3/Q2P3q/B2B4/P4PPP/4R1K1 w - -",
+                "r4br1/3b1kpp/1q1P4/1pp1RP1N/p7/6Q1/PPB3PP/2KR4 w - -",
+                "r1b2k1r/ppppq3/5N1p/4P2Q/4PP2/1B6/PP5P/n2K2R1 w - -",
+                "r2q1b1r/1pN1n1pp/p1n3k1/4Pb2/2BP4/8/PPP3PP/R1BQ1RK1 w - -",
+                "3q2r1/4n2k/p1p1rBpp/PpPpPp2/1P3P1Q/2P3R1/7P/1R5K w - -",
+                "r2qk2r/pb4pp/1n2Pb2/2B2Q2/p1p5/2P5/2B2PPP/RN2R1K1 w - -",
+                "6k1/pp4p1/2p5/2bp4/8/P5Pb/1P3rrP/2BRRN1K b - -",
+                "rnbqkbn1/ppppp3/7r/6pp/3P1p2/3BP1B1/PPP2PPP/RN1QK1NR w - -"
+    };
+
+    std::string bestMoves[] = {
+                "Nf6+",
+                "Qd5+",
+                "Qb8+",
+                "Qd8+",
+                "Qxg6+",
+                "Qxd7+",
+                "Qxf8+",
+                "Qd7+",
+                "Qg6+",
+                "Qxh6+",
+                "Qg4+",
+                "Qxh6+",
+                "Qg6+",
+                "Rg1+",
+                "Qxh5+"
+    };
+
+    for (int i = 0, max = sizeof(bestMoves)/sizeof(bestMoves[0]); i < max; i++){
+        chessBoard board;
+        searchEngine searchEn;
+        move m(0,0,0);
+
+        readInPosFromFEN (board, positions[i]);
+        board.populateOccup();
+        board.populateCharBoard();
+        board.calcHash();
+
+        int searchDepth = 5;
+
+        //board.printCharBoard();
+
+        m = searchEn.doSearch(board, searchDepth);
+
+
+        auto toSqr = sqrMapIntToStr2[(int) m.to];
+        auto bm = bestMoves[i];
+        if (bm.find(toSqr) == std::string::npos) {
+            std::cout << "Best move NOT FOUND!!!! \n";
+        }
+        else {
+            std::cout << "seems OK \n";
+        }
+    }
+}
+
+
 void bratkoKopec()
 {
     std::string sqrMapIntToStr2[] = {

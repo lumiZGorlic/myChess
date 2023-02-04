@@ -23,6 +23,7 @@ U64 perft2();
 void debugMoveGen ();
 
 
+void solveProblems();
 bool pickRandomMove(chessBoard& board, move& m, int prefMv = 0);
 void printMove(const move& m);
 int pickSearchDepth();

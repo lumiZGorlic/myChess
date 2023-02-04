@@ -32,10 +32,11 @@ int main ()
 
     //uciLoop();
 
+    solveProblems();
     //bratkoKopec();
     //testSearch();
     //debugMoveGen();
-    testMoveGenSpeed();
+    //testMoveGenSpeed();
     //playDummyGame();
     //engineVsEngine();
     //playChess();
